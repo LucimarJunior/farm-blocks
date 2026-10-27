@@ -1,5 +1,5 @@
 import React from 'react';
-import { Crown, Volume2, VolumeX, RotateCcw, BookOpen } from 'lucide-react';
+import { Crown, Volume2, VolumeX, RotateCcw, BookOpen, Trophy } from 'lucide-react';
 
 interface HUDProps {
   score: number;
@@ -8,6 +8,7 @@ interface HUDProps {
   onToggleSound: () => void;
   onRestart: () => void;
   onOpenRules: () => void;
+  onOpenRanking: () => void;
 }
 
 export const HUD: React.FC<HUDProps> = ({
@@ -17,6 +18,7 @@ export const HUD: React.FC<HUDProps> = ({
   onToggleSound,
   onRestart,
   onOpenRules,
+  onOpenRanking,
 }) => {
   return (
     <header className="w-full max-w-[420px] mx-auto px-2.5 pt-1 pb-0.5 z-20 flex flex-col gap-1 shrink-0">
@@ -38,6 +40,7 @@ export const HUD: React.FC<HUDProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-1">
+          <button onClick={onOpenRanking} title="Ranking Mundial" aria-label="Abrir ranking mundial" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-950/70 border border-yellow-600/60 text-yellow-300 flex items-center justify-center shadow-sm"><Trophy className="w-3.5 h-3.5" /></button>
           <button
             onClick={onOpenRules}
             title="Como Jogar"

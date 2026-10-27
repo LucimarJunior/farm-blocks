@@ -29,6 +29,7 @@ import { PieceTray, PieceRender } from './components/PieceTray';
 import { ParticleTrigger } from './components/HarvestParticles';
 import { HarvestBanner, BannerData } from './components/HarvestBanner';
 import { GameOverModal, RulesModal } from './components/Modals';
+import { RankingModal } from './components/RankingModal';
 
 interface DragState {
   piece: Piece;
@@ -124,6 +125,7 @@ export default function App() {
 
   // UI state
   const [showRules, setShowRules] = useState<boolean>(false);
+  const [showRanking, setShowRanking] = useState<boolean>(false);
   const [isFirstTime, setIsFirstTime] = useState<boolean>(() => {
     return !localStorage.getItem(STORAGE_KEYS.FIRST_TIME);
   });
@@ -729,6 +731,7 @@ export default function App() {
         onToggleSound={handleToggleSound}
         onRestart={handleRestart}
         onOpenRules={() => setShowRules(true)}
+        onOpenRanking={() => setShowRanking(true)}
       />
 
       {/* Dynamic Harvest & Combo Banner Announcement */}
@@ -789,6 +792,8 @@ export default function App() {
         onClose={handleCloseRules}
         isFirstTime={isFirstTime}
       />
+
+      <RankingModal isOpen={showRanking} onClose={() => setShowRanking(false)} />
 
       {/* Game Over Modal */}
       <GameOverModal
