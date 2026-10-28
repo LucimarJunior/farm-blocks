@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { saveWorldRecord } from '../utils/worldRanking';
 import { CropIcon } from './Crops';
 import { Crown, Play, RotateCcw, X, Sparkles, Award } from 'lucide-react';
 
@@ -160,11 +161,27 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   maxCombo,
   onPlayAgain,
 }) => {
+  const [name, setName] = useState(() => localStorage.getItem('farm_blocks_player_name') || '');
+  const [status, setStatus] = useState('');
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { if (isOpen) setStatus(''); }, [isOpen]);
+  const handleSave = async () => {
+    if (saving) return;
+    setSaving(true);
+    setStatus('');
+    try {
+      await saveWorldRecord(name, highScore);
+      localStorage.setItem('farm_blocks_player_name', name.trim());
+      setStatus('Recorde registrado no ranking mundial!');
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Falha ao salvar o recorde.');
+    } finally { setSaving(false); }
+  };
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-amber-950 border-4 border-amber-600 rounded-3xl p-6 shadow-2xl text-center flex flex-col items-center">
+      <div className="w-full max-w-sm bg-amber-950 border-4 border-amber-600 rounded-3xl p-5 shadow-2xl text-center flex flex-col items-center max-h-[90dvh] overflow-y-auto">
         {/* Banner */}
         <div className="w-16 h-16 rounded-2xl bg-amber-900 border-2 border-amber-500 flex items-center justify-center text-3xl mb-2 shadow-lg">
           🌾
@@ -227,6 +244,17 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
             <span className="text-[10px] text-yellow-300/90 font-bold uppercase block">Super Colheitas</span>
             <span className="text-base font-extrabold text-yellow-300 tabular-nums">{superHarvests}</span>
           </div>
+        </div>
+
+        <div className="w-full mb-4 text-left">
+          <label htmlFor="world-player-name" className="block text-xs font-bold text-amber-200 mb-2">Seu apelido no ranking mundial</label>
+          <input id="world-player-name" maxLength={20} value={name} onChange={(e) => setName(e.target.value)}
+            placeholder="Digite seu apelido" className="w-full rounded-xl bg-white text-amber-950 px-3 py-3" />
+          <button type="button" disabled={saving || !name.trim()} onClick={handleSave}
+            className="w-full mt-2 py-3 rounded-xl bg-yellow-500 text-amber-950 font-black disabled:opacity-50">
+            {saving ? 'SALVANDO...' : '🏆 SALVAR NO RANKING MUNDIAL'}
+          </button>
+          {status && <p role="status" className="text-xs text-amber-200 mt-2 text-center">{status}</p>}
         </div>
 
         {/* Play Again Button */}
