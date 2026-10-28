@@ -50,7 +50,7 @@ export function RankingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
             </li>
           ))}</ol>}
         <button onClick={() => setRefresh((n) => n + 1)} className="w-full mt-4 py-3 rounded-xl bg-emerald-700 font-bold flex items-center justify-center gap-2"><RefreshCw size={16}/> Atualizar ranking</button>
-        <p className="text-center text-xs text-amber-300/70 mt-3">Em breve: registre seu recorde mundial!</p>
+        <p className="text-center text-xs text-amber-300/70 mt-3">Registre seu melhor recorde ao terminar uma partida!</p>
       </section>
     </div>
   );
