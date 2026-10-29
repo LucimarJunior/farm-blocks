@@ -30,6 +30,7 @@ import { ParticleTrigger } from './components/HarvestParticles';
 import { HarvestBanner, BannerData } from './components/HarvestBanner';
 import { GameOverModal, RulesModal } from './components/Modals';
 import { RankingModal } from './components/RankingModal';
+import { RoundBonus, BonusState, initialBonus, updateBonus } from './components/RoundBonus';
 
 interface DragState {
   piece: Piece;
@@ -120,6 +121,14 @@ export default function App() {
     };
   });
 
+  const [bonus, setBonus] = useState<BonusState>(() => {
+    try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME) || 'null'); if (saved?.bonus?.awarded?.length === 3) return saved.bonus; } catch { /* ignore */ }
+    return initialBonus();
+  });
+  const bonusRef = useRef(bonus);
+  const [showBonus, setShowBonus] = useState(false);
+  const [bonusNotice, setBonusNotice] = useState('');
+
   // Sound toggle state
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => sound.isEnabled());
 
@@ -195,12 +204,24 @@ export default function App() {
           score,
           trayPieces,
           stats: { ...stats, score, highScore },
+          bonus,
         })
       );
     } catch {
       // ignore
     }
-  }, [board, score, trayPieces, stats, highScore]);
+  }, [board, score, trayPieces, stats, highScore, bonus]);
+
+  // Award mission points once as soon as harvest statistics reach a target.
+  useEffect(() => {
+    const { next, earned, completed } = updateBonus(bonusRef.current, stats);
+    bonusRef.current = next;
+    setBonus(next);
+    if (earned > 0) {
+      setScore(prev => prev + earned);
+      setBonusNotice(`MISSÃO COMPLETA! +${earned} PONTOS • ${completed.join(' / ')}`);
+    }
+  }, [stats.linesCleared, stats.superHarvests, stats.maxCombo]);
 
   // Save high score
   useEffect(() => {
@@ -250,6 +271,10 @@ export default function App() {
     currentBoardRef.current = newBoard.map((row) => [...row]);
     setBoard(newBoard);
     setScore(0);
+    bonusRef.current = initialBonus();
+    setBonus(bonusRef.current);
+    setShowBonus(false);
+    setBonusNotice('');
     setTrayPieces(newPieces);
     setHoverPreview(null);
     setDragState(null);
@@ -728,12 +753,15 @@ export default function App() {
         score={score}
         highScore={highScore}
         stats={stats}
+        onOpenBonus={() => setShowBonus(true)}
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
         onRestart={handleRestart}
         onOpenRules={() => setShowRules(true)}
         onOpenRanking={() => setShowRanking(true)}
       />
+
+      {bonusNotice && <button onClick={() => setBonusNotice('')} className="z-30 max-w-[95vw] mx-auto bg-emerald-800/95 border border-yellow-400 rounded-lg px-3 py-1 text-xs font-black text-yellow-200 shadow-xl">🌟 {bonusNotice} ✕</button>}
 
       {/* Dynamic Harvest & Combo Banner Announcement */}
       <HarvestBanner banner={currentBanner} />
@@ -795,6 +823,7 @@ export default function App() {
       />
 
       <RankingModal isOpen={showRanking} onClose={() => setShowRanking(false)} />
+      {showBonus && <RoundBonus state={bonus} onClose={() => setShowBonus(false)} />}
 
       {/* Game Over Modal */}
       <GameOverModal
