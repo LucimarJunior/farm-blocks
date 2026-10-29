@@ -48,3 +48,16 @@ export async function saveWorldRecord(name: string, score: number): Promise<void
   });
   if (!response.ok) throw new Error('Não foi possível salvar. Verifique a configuração do Supabase.');
 }
+
+export async function saveFinishedMatch(name: string, score: number, matchId: string): Promise<void> {
+  const player_name = name.trim();
+  if (player_name.length < 1 || player_name.length > 20 || !Number.isSafeInteger(score) || score < 0)
+    throw new Error('Informe um apelido de até 20 caracteres.');
+  const session = await getPlayerSession();
+  const response = await fetch(URL + '/rest/v1/rpc/farm_blocks_submit_match', {
+    method: 'POST',
+    headers: { apikey: KEY, Authorization: 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_match_id: matchId, p_player_name: player_name, p_score: score }),
+  });
+  if (!response.ok) throw new Error('Não foi possível registrar a partida. Configure a migração SQL dos rankings no Supabase.');
+}
