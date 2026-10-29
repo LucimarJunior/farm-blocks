@@ -1,9 +1,12 @@
 import React from 'react';
+import { GameStats } from '../types';
+import { DailyMissions } from './DailyMissions';
 import { Crown, Volume2, VolumeX, RotateCcw, BookOpen, Trophy } from 'lucide-react';
 
 interface HUDProps {
   score: number;
   highScore: number;
+  stats: GameStats;
   soundEnabled: boolean;
   onToggleSound: () => void;
   onRestart: () => void;
@@ -14,6 +17,7 @@ interface HUDProps {
 export const HUD: React.FC<HUDProps> = ({
   score,
   highScore,
+  stats,
   soundEnabled,
   onToggleSound,
   onRestart,
@@ -40,6 +44,7 @@ export const HUD: React.FC<HUDProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-1">
+          <DailyMissions score={score} stats={stats} />
           <button onClick={onOpenRanking} title="Ranking Mundial" aria-label="Abrir ranking mundial" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-950/70 border border-yellow-600/60 text-yellow-300 flex items-center justify-center shadow-sm"><Trophy className="w-3.5 h-3.5" /></button>
           <button
             onClick={onOpenRules}
