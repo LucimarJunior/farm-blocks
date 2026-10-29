@@ -122,10 +122,11 @@ export default function App() {
   });
 
   const [bonus, setBonus] = useState<BonusState>(() => {
-    try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME) || 'null'); if (saved?.bonus?.awarded?.length === 3) return saved.bonus; } catch { /* ignore */ }
+    try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME) || 'null'); if (saved?.bonus?.awarded?.length === 3) return { ...initialBonus(), ...saved.bonus, cornLines: saved.bonus.cornLines ?? 0, awarded: [false, ...saved.bonus.awarded.slice(1)] }; } catch { /* ignore */ }
     return initialBonus();
   });
   const bonusRef = useRef(bonus);
+  const [cornLines, setCornLines] = useState<number>(() => bonus.cornLines);
   const [showBonus, setShowBonus] = useState(false);
   const [bonusNotice, setBonusNotice] = useState('');
 
@@ -214,14 +215,14 @@ export default function App() {
 
   // Award mission points once as soon as harvest statistics reach a target.
   useEffect(() => {
-    const { next, earned, completed } = updateBonus(bonusRef.current, stats);
+    const { next, earned, completed } = updateBonus(bonusRef.current, { cornLines, supers: stats.superHarvests, maxCombo: stats.maxCombo });
     bonusRef.current = next;
     setBonus(next);
     if (earned > 0) {
       setScore(prev => prev + earned);
       setBonusNotice(`MISSÃO COMPLETA! +${earned} PONTOS • ${completed.join(' / ')}`);
     }
-  }, [stats.linesCleared, stats.superHarvests, stats.maxCombo]);
+  }, [cornLines, stats.superHarvests, stats.maxCombo]);
 
   // Save high score
   useEffect(() => {
@@ -273,6 +274,7 @@ export default function App() {
     setScore(0);
     bonusRef.current = initialBonus();
     setBonus(bonusRef.current);
+    setCornLines(0);
     setShowBonus(false);
     setBonusNotice('');
     setTrayPieces(newPieces);
@@ -488,6 +490,8 @@ export default function App() {
 
         let goodCount = 0;
         let superCount = 0;
+        const harvestedCornLines = harvest.lines.filter((line) => line.cropCounts.corn === 8).length;
+        if (harvestedCornLines > 0) setCornLines((prev) => prev + harvestedCornLines);
         harvest.lines.forEach((line) => {
           if (line.level === 'good') goodCount++;
           if (line.level === 'super') superCount++;
