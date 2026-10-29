@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { saveWorldRecord } from '../utils/worldRanking';
+import { saveFinishedMatch } from '../utils/worldRanking';
 import { CropIcon } from './Crops';
 import { Crown, Play, RotateCcw, X, Sparkles, Award } from 'lucide-react';
 
@@ -142,6 +142,7 @@ interface GameOverModalProps {
   isOpen: boolean;
   score: number;
   highScore: number;
+  matchId: string;
   isNewRecord: boolean;
   linesCleared: number;
   goodHarvests: number;
@@ -154,6 +155,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   isOpen,
   score,
   highScore,
+  matchId,
   isNewRecord,
   linesCleared,
   goodHarvests,
@@ -170,9 +172,9 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
     setSaving(true);
     setStatus('');
     try {
-      await saveWorldRecord(name, highScore);
+      await saveFinishedMatch(name, score, matchId);
       localStorage.setItem('farm_blocks_player_name', name.trim());
-      setStatus('Recorde registrado no ranking mundial!');
+      setStatus('Partida registrada! Pontos somados nos rankings semanal e mensal; recorde mundial atualizado se for maior.');
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Falha ao salvar o recorde.');
     } finally { setSaving(false); }
@@ -247,12 +249,12 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
         </div>
 
         <div className="w-full mb-4 text-left">
-          <label htmlFor="world-player-name" className="block text-xs font-bold text-amber-200 mb-2">Seu apelido no ranking mundial</label>
+          <label htmlFor="world-player-name" className="block text-xs font-bold text-amber-200 mb-2">Seu apelido nos rankings</label>
           <input id="world-player-name" maxLength={20} value={name} onChange={(e) => setName(e.target.value)}
             placeholder="Digite seu apelido" className="w-full rounded-xl bg-white text-amber-950 px-3 py-3" />
           <button type="button" disabled={saving || !name.trim()} onClick={handleSave}
             className="w-full mt-2 py-3 rounded-xl bg-yellow-500 text-amber-950 font-black disabled:opacity-50">
-            {saving ? 'SALVANDO...' : '🏆 SALVAR NO RANKING MUNDIAL'}
+            {saving ? 'SALVANDO...' : '🏆 REGISTRAR PARTIDA NOS RANKINGS'}
           </button>
           {status && <p role="status" className="text-xs text-amber-200 mt-2 text-center">{status}</p>}
         </div>
