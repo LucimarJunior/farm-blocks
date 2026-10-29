@@ -3,7 +3,40 @@ import { GameStats } from '../types';
 
 type Daily = { date: string; lines: number; supers: number; bestScore: number; claimed: boolean[]; coins: number };
 const KEY = 'farm_blocks_daily_missions_v1';
-const day = () => new Date().toLocaleDateString('en-CA');
+// Todos usam a mesma data civil de Brasília, independentemente do fuso do aparelho.
+const day = () => new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit',
+}).format(new Date());
+const dayIndex = (date: string) => Math.floor(Date.parse(date + 'T00:00:00Z') / 86400000);
+type Mission = { icon: string; label: string; target: number; reward: number };
+const missionSets: Mission[][] = [
+  [
+    { icon: '🌽', label: 'Colha 10 linhas', target: 10, reward: 50 },
+    { icon: '🚜', label: 'Faça 2 Super Colheitas', target: 2, reward: 100 },
+    { icon: '🏆', label: 'Alcance 2.000 pontos em uma partida', target: 2000, reward: 75 },
+  ],
+  [
+    { icon: '🌽', label: 'Colha 15 linhas', target: 15, reward: 75 },
+    { icon: '🚜', label: 'Faça 1 Super Colheita', target: 1, reward: 60 },
+    { icon: '🏆', label: 'Alcance 3.000 pontos em uma partida', target: 3000, reward: 100 },
+  ],
+  [
+    { icon: '🌽', label: 'Colha 8 linhas', target: 8, reward: 40 },
+    { icon: '🚜', label: 'Faça 3 Super Colheitas', target: 3, reward: 150 },
+    { icon: '🏆', label: 'Alcance 1.500 pontos em uma partida', target: 1500, reward: 60 },
+  ],
+  [
+    { icon: '🌽', label: 'Colha 20 linhas', target: 20, reward: 100 },
+    { icon: '🚜', label: 'Faça 2 Super Colheitas', target: 2, reward: 100 },
+    { icon: '🏆', label: 'Alcance 2.500 pontos em uma partida', target: 2500, reward: 90 },
+  ],
+  [
+    { icon: '🌽', label: 'Colha 12 linhas', target: 12, reward: 60 },
+    { icon: '🚜', label: 'Faça 1 Super Colheita', target: 1, reward: 60 },
+    { icon: '🏆', label: 'Alcance 4.000 pontos em uma partida', target: 4000, reward: 130 },
+  ],
+];
+const missionsFor = (date: string): Mission[] => missionSets[((dayIndex(date) % missionSets.length) + missionSets.length) % missionSets.length];
 const empty = (date: string, coins = 0): Daily => ({ date, lines: 0, supers: 0, bestScore: 0, claimed: [false, false, false], coins });
 function load(): Daily {
   try {
@@ -12,18 +45,11 @@ function load(): Daily {
   } catch { /* ignore */ }
   return empty(day());
 }
-const missions = [
-  { icon: '🌽', label: 'Colha 10 linhas', target: 10, reward: 50 },
-  { icon: '🚜', label: 'Faça 2 Super Colheitas', target: 2, reward: 100 },
-  { icon: '🏆', label: 'Alcance 2.000 pontos em uma partida', target: 2000, reward: 75 },
-];
-
 export function DailyMissions({ score, stats }: { score: number; stats: GameStats }) {
   const [open, setOpen] = useState(false);
   const [daily, setDaily] = useState<Daily>(load);
   const previous = useRef({ lines: stats.linesCleared, supers: stats.superHarvests });
-  const dailyRef = useRef(daily);
-  dailyRef.current = daily;
+  const missions = missionsFor(daily.date);
 
   useEffect(() => {
     const previousStats = previous.current;
@@ -35,8 +61,8 @@ export function DailyMissions({ score, stats }: { score: number; stats: GameStat
       if (!linesAdded && !supersAdded && score <= current.bestScore) return current;
       return {
         ...current,
-        lines: Math.min(10, current.lines + linesAdded),
-        supers: Math.min(2, current.supers + supersAdded),
+        lines: current.lines + linesAdded,
+        supers: current.supers + supersAdded,
         bestScore: Math.max(current.bestScore, score),
       };
     });
@@ -49,7 +75,7 @@ export function DailyMissions({ score, stats }: { score: number; stats: GameStat
   useEffect(() => {
     const interval = window.setInterval(() => {
       setDaily(old => old.date === day() ? old : empty(day(), old.coins));
-    }, 60000);
+    }, 1000);
     return () => window.clearInterval(interval);
   }, []);
 
@@ -78,7 +104,7 @@ export function DailyMissions({ score, stats }: { score: number; stats: GameStat
             <h2 className="text-xl font-black text-yellow-300">🌾 MISSÕES DA FAZENDA</h2>
             <button onClick={() => setOpen(false)} aria-label="Fechar missões" className="bg-amber-900 rounded-lg px-3 py-1.5 font-bold">✕</button>
           </div>
-          <p className="text-xs text-amber-300 mb-3">Novas missões a cada dia • Moedas: <strong>{daily.coins.toLocaleString('pt-BR')} 🌾</strong></p>
+          <p className="text-xs text-amber-300 mb-3">Renovação às 00:00 (Brasília) • Moedas: <strong>{daily.coins.toLocaleString('pt-BR')} 🌾</strong></p>
           <div className="space-y-3">
             {missions.map((m, i) => {
               const progress = Math.min(m.target, values[i]);
