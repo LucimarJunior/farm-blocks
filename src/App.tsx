@@ -121,6 +121,10 @@ export default function App() {
     };
   });
 
+  const [matchId, setMatchId] = useState<string>(() => {
+    try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME) || 'null'); if (saved?.matchId) return saved.matchId; } catch { /* ignore */ }
+    return crypto.randomUUID();
+  });
   const [bonus, setBonus] = useState<BonusState>(() => {
     try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME) || 'null'); if (saved?.bonus?.awarded?.length === 3) return { ...initialBonus(), ...saved.bonus, cornLines: saved.bonus.cornLines ?? 0, awarded: saved.bonus.cornLines === undefined ? [false, ...saved.bonus.awarded.slice(1)] : saved.bonus.awarded }; } catch { /* ignore */ }
     return initialBonus();
@@ -206,12 +210,13 @@ export default function App() {
           trayPieces,
           stats: { ...stats, score, highScore },
           bonus,
+          matchId,
         })
       );
     } catch {
       // ignore
     }
-  }, [board, score, trayPieces, stats, highScore, bonus]);
+  }, [board, score, trayPieces, stats, highScore, bonus, matchId]);
 
   // Award mission points once as soon as harvest statistics reach a target.
   useEffect(() => {
@@ -272,6 +277,7 @@ export default function App() {
     currentBoardRef.current = newBoard.map((row) => [...row]);
     setBoard(newBoard);
     setScore(0);
+    setMatchId(crypto.randomUUID());
     bonusRef.current = initialBonus();
     setBonus(bonusRef.current);
     setCornLines(0);
@@ -834,6 +840,7 @@ export default function App() {
         isOpen={showGameOver}
         score={score}
         highScore={highScore}
+        matchId={matchId}
         isNewRecord={isNewRecord}
         linesCleared={stats.linesCleared}
         goodHarvests={stats.goodHarvests}
