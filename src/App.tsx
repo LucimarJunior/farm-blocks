@@ -30,6 +30,7 @@ import { ParticleTrigger } from './components/HarvestParticles';
 import { HarvestBanner, BannerData } from './components/HarvestBanner';
 import { GameOverModal, RulesModal } from './components/Modals';
 import { RankingModal } from './components/RankingModal';
+import { AchievementsModal, AchievementData, loadAchievements, advanceAchievements } from './components/Achievements';
 import { RoundBonus, BonusState, initialBonus, updateBonus } from './components/RoundBonus';
 
 interface DragState {
@@ -140,6 +141,19 @@ export default function App() {
   // UI state
   const [showRules, setShowRules] = useState<boolean>(false);
   const [showRanking, setShowRanking] = useState<boolean>(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [achievementsData, setAchievementsData] = useState<AchievementData>(loadAchievements);
+  const achievementsRef = useRef(achievementsData);
+  const [achievementNotice, setAchievementNotice] = useState('');
+  const awardAchievements = (event: Parameters<typeof advanceAchievements>[1]) => {
+    const result = advanceAchievements(achievementsRef.current, event);
+    achievementsRef.current = result.next;
+    setAchievementsData(result.next);
+    if (result.newTitles.length) setAchievementNotice(`🏅 CONQUISTA DESBLOQUEADA: ${result.newTitles.join(' • ')}`);
+  };
+  const finishAchievements = (id: string, finalScore: number) => {
+    awardAchievements({ finishedMatch: { id, score: finalScore } });
+  };
   const [isFirstTime, setIsFirstTime] = useState<boolean>(() => {
     return !localStorage.getItem(STORAGE_KEYS.FIRST_TIME);
   });
@@ -228,6 +242,10 @@ export default function App() {
       setBonusNotice(`MISSÃO COMPLETA! +${earned} PONTOS • ${completed.join(' / ')}`);
     }
   }, [cornLines, stats.superHarvests, stats.maxCombo]);
+
+  useEffect(() => {
+    awardAchievements({ score });
+  }, [score]);
 
   // Save high score
   useEffect(() => {
@@ -498,6 +516,7 @@ export default function App() {
         let superCount = 0;
         const harvestedCornLines = harvest.lines.filter((line) => line.cropCounts.corn === 8).length;
         if (harvestedCornLines > 0) setCornLines((prev) => prev + harvestedCornLines);
+        awardAchievements({ cornLines: harvestedCornLines, superHarvests: harvest.lines.filter(line => line.level === 'super').length, combo: harvest.comboCount });
         harvest.lines.forEach((line) => {
           if (line.level === 'good') goodCount++;
           if (line.level === 'super') superCount++;
@@ -764,6 +783,7 @@ export default function App() {
         highScore={highScore}
         stats={stats}
         onOpenBonus={() => setShowBonus(true)}
+        onOpenAchievements={() => setShowAchievements(true)}
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
         onRestart={handleRestart}
@@ -833,6 +853,8 @@ export default function App() {
       />
 
       <RankingModal isOpen={showRanking} onClose={() => setShowRanking(false)} />
+      {showAchievements && <AchievementsModal data={achievementsData} onClose={() => setShowAchievements(false)} />}
+      {achievementNotice && <button onClick={() => setAchievementNotice('')} className="fixed top-20 left-1/2 -translate-x-1/2 z-[99] max-w-[95vw] bg-emerald-800 border-2 border-yellow-400 rounded-xl p-3 text-yellow-200 font-black text-xs shadow-2xl">{achievementNotice} ✕</button>}
       {showBonus && <RoundBonus state={bonus} onClose={() => setShowBonus(false)} />}
 
       {/* Game Over Modal */}
@@ -847,6 +869,8 @@ export default function App() {
         superHarvests={stats.superHarvests}
         maxCombo={stats.maxCombo}
         onPlayAgain={handleRestart}
+        onFinished={finishAchievements}
+        matchId={matchId}
       />
     </main>
   );
