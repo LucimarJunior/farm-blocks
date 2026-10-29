@@ -143,6 +143,7 @@ interface GameOverModalProps {
   score: number;
   highScore: number;
   matchId: string;
+  onFinished: (id: string, score: number) => void;
   isNewRecord: boolean;
   linesCleared: number;
   goodHarvests: number;
@@ -156,6 +157,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   score,
   highScore,
   matchId,
+  onFinished,
   isNewRecord,
   linesCleared,
   goodHarvests,
@@ -167,6 +169,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   const [status, setStatus] = useState('');
   const [saving, setSaving] = useState(false);
   useEffect(() => { if (isOpen) setStatus(''); }, [isOpen]);
+  useEffect(() => { if (isOpen) onFinished(matchId, score); }, [isOpen, matchId]);
   const handleSave = async () => {
     if (saving) return;
     setSaving(true);
