@@ -727,6 +727,7 @@ export default function App() {
       <HUD
         score={score}
         highScore={highScore}
+        stats={stats}
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
         onRestart={handleRestart}
