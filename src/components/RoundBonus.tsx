@@ -1,16 +1,15 @@
 import React from 'react';
-import { GameStats } from '../types';
 
-export type BonusState = { lines: number; supers: number; maxCombo: number; awarded: boolean[]; bonusPoints: number };
-export const initialBonus = (): BonusState => ({ lines: 0, supers: 0, maxCombo: 0, awarded: [false, false, false], bonusPoints: 0 });
+export type BonusState = { cornLines: number; supers: number; maxCombo: number; awarded: boolean[]; bonusPoints: number };
+export const initialBonus = (): BonusState => ({ cornLines: 0, supers: 0, maxCombo: 0, awarded: [false, false, false], bonusPoints: 0 });
 export const BONUS_KEY = 'farm_blocks_round_bonus_v1';
 export const bonusMissions = [
-  { icon: '🌽', label: 'Colha 5 linhas', target: 5, reward: 150 },
+  { icon: '🌽', label: 'Colha 5 linhas completas de milho', target: 5, reward: 150 },
   { icon: '🚜', label: 'Faça 1 Super Colheita', target: 1, reward: 250 },
-  { icon: '🔥', label: 'Faça um combo de 3 linhas', target: 3, reward: 300 },
+  { icon: '🔥', label: 'Faça um combo de 3 linhas simultâneas', target: 3, reward: 300 },
 ];
-export function updateBonus(current: BonusState, stats: GameStats): { next: BonusState; earned: number; completed: string[] } {
-  const values = [stats.linesCleared, stats.superHarvests, stats.maxCombo];
+export function updateBonus(current: BonusState, stats: { cornLines: number; supers: number; maxCombo: number }): { next: BonusState; earned: number; completed: string[] } {
+  const values = [stats.cornLines, stats.supers, stats.maxCombo];
   const awarded = [...current.awarded];
   let earned = 0;
   const completed: string[] = [];
@@ -21,10 +20,10 @@ export function updateBonus(current: BonusState, stats: GameStats): { next: Bonu
       completed.push(mission.label);
     }
   });
-  return { next: { lines: stats.linesCleared, supers: stats.superHarvests, maxCombo: stats.maxCombo, awarded, bonusPoints: current.bonusPoints + earned }, earned, completed };
+  return { next: { cornLines: stats.cornLines, supers: stats.supers, maxCombo: stats.maxCombo, awarded, bonusPoints: current.bonusPoints + earned }, earned, completed };
 }
 export function RoundBonus({ state, onClose }: { state: BonusState; onClose: () => void }) {
-  const values = [state.lines, state.supers, state.maxCombo];
+  const values = [state.cornLines, state.supers, state.maxCombo];
   return <div className="fixed inset-0 z-[95] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <section role="dialog" aria-modal="true" aria-label="Bônus de Colheita" className="w-full max-w-sm bg-amber-950 border-2 border-yellow-600 rounded-3xl p-5 text-amber-100 shadow-2xl">
       <div className="flex justify-between items-center mb-3">
