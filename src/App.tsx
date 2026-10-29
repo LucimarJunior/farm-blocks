@@ -870,7 +870,6 @@ export default function App() {
         maxCombo={stats.maxCombo}
         onPlayAgain={handleRestart}
         onFinished={finishAchievements}
-        matchId={matchId}
       />
     </main>
   );
