@@ -122,7 +122,7 @@ export default function App() {
   });
 
   const [bonus, setBonus] = useState<BonusState>(() => {
-    try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME) || 'null'); if (saved?.bonus?.awarded?.length === 3) return { ...initialBonus(), ...saved.bonus, cornLines: saved.bonus.cornLines ?? 0, awarded: [false, ...saved.bonus.awarded.slice(1)] }; } catch { /* ignore */ }
+    try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME) || 'null'); if (saved?.bonus?.awarded?.length === 3) return { ...initialBonus(), ...saved.bonus, cornLines: saved.bonus.cornLines ?? 0, awarded: saved.bonus.cornLines === undefined ? [false, ...saved.bonus.awarded.slice(1)] : saved.bonus.awarded }; } catch { /* ignore */ }
     return initialBonus();
   });
   const bonusRef = useRef(bonus);
