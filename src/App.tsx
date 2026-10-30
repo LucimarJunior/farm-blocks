@@ -29,6 +29,7 @@ import { PieceTray, PieceRender } from './components/PieceTray';
 import { ParticleTrigger } from './components/HarvestParticles';
 import { HarvestBanner, BannerData } from './components/HarvestBanner';
 import { GameOverModal, RulesModal } from './components/Modals';
+import { flushFinishedMatches } from './utils/worldRanking';
 import { RankingModal } from './components/RankingModal';
 import { AchievementsModal, AchievementData, loadAchievements, advanceAchievements } from './components/Achievements';
 import { RoundBonus, BonusState, initialBonus, updateBonus } from './components/RoundBonus';
@@ -122,6 +123,8 @@ export default function App() {
       maxCombo: 0,
     };
   });
+
+  useEffect(() => { void flushFinishedMatches(); }, []);
 
   const [matchId, setMatchId] = useState<string>(() => {
     try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME) || 'null'); if (saved?.matchId) return saved.matchId; } catch { /* ignore */ }
