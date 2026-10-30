@@ -136,6 +136,7 @@ export default function App() {
     catch {return {};}
   });
   const [rotationNotice,setRotationNotice]=useState('');
+  const [selectedRotationPieceId,setSelectedRotationPieceId]=useState<string|null>(null);
   const rotationPrices=[25,30,50] as const;
   const handleRotatePiece=(id:string,direction:'left'|'right')=>{
     if (phase!=='READY'||isHarvesting||showGameOver) return;
@@ -344,6 +345,7 @@ export default function App() {
     setMatchId(crypto.randomUUID());
     setRotationsUsed(0);
     setRotationTurns({});
+    setSelectedRotationPieceId(null);
     setRotationNotice('');
     bonusRef.current = initialBonus();
     setBonus(bonusRef.current);
@@ -876,11 +878,24 @@ export default function App() {
           activeDragPieceId={dragState?.piece.id || null}
           disabled={isHarvesting}
           onPointerDownPiece={handlePointerDownPiece}
-          onRotatePiece={handleRotatePiece}
-          rotationCost={rotationsUsed<3?rotationPrices[rotationsUsed]:undefined}
-          rotationTurns={rotationTurns}
-          rotationCurrency={rotationsUsed===0?'🌾':'🪙'}
+          selectedPieceId={selectedRotationPieceId}
+          onSelectPiece={id=>setSelectedRotationPieceId(prev=>prev===id?null:id)}
         />
+        <div className="mx-auto mt-1 flex min-h-[44px] max-w-[400px] items-center justify-center gap-2 rounded-xl bg-amber-950/90 px-2 py-1 border border-amber-700/70">
+          {selectedRotationPieceId && trayPieces.some(p=>p.id===selectedRotationPieceId&&!p.used) && ((rotationTurns[selectedRotationPieceId]||0)>0 || rotationsUsed<3) ? <>
+            <button type="button" onClick={()=>handleRotatePiece(selectedRotationPieceId,'left')} disabled={isHarvesting || phase!=='READY'}
+              aria-label="Girar peça selecionada 90 graus para a esquerda" className="rounded-lg bg-yellow-400 px-4 py-2 text-xl font-black text-amber-950 disabled:opacity-40">↶</button>
+            <span className="min-w-[125px] text-center text-[11px] font-bold text-yellow-200">
+              {(rotationTurns[selectedRotationPieceId]||0)>0
+                ? `${rotationTurns[selectedRotationPieceId]} giros restantes`
+                : `Girar por ${rotationPrices[rotationsUsed]} ${rotationsUsed===0?'🌾':'🪙'}`}
+            </span>
+            <button type="button" onClick={()=>handleRotatePiece(selectedRotationPieceId,'right')} disabled={isHarvesting || phase!=='READY'}
+              aria-label="Girar peça selecionada 90 graus para a direita" className="rounded-lg bg-yellow-400 px-4 py-2 text-xl font-black text-amber-950 disabled:opacity-40">↷</button>
+          </> : <span className="text-[11px] font-semibold text-amber-200">
+            {rotationsUsed>=3?'Selecione uma peça com giros restantes':'Selecione uma peça para girar ↻'}
+          </span>}
+        </div>
       </section>
 
       {/* Floating Dragged Piece directly following thumb with upward offset */}
