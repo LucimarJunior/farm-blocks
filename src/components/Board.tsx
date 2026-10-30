@@ -10,6 +10,8 @@ interface BoardProps {
   hoverPreview: HoverPreviewData | null;
   clearingCells: Set<string>;
   activeHarvesters: HarvestLineResult[];
+  harvesterId: import('./Garage').HarvesterId;
+  harvesterDuration: number;
   particleTriggers: ParticleTrigger[];
   scorePopups: ScorePopup[];
 }
@@ -20,6 +22,8 @@ export const Board: React.FC<BoardProps> = ({
   hoverPreview,
   clearingCells,
   activeHarvesters,
+  harvesterId,
+  harvesterDuration,
   particleTriggers,
   scorePopups,
 }) => {
@@ -165,6 +169,8 @@ export const Board: React.FC<BoardProps> = ({
           <HarvesterAnimation
             key={`${harvester.orientation}_${harvester.index}_${idx}`}
             line={harvester}
+            harvesterId={harvesterId}
+            duration={harvesterDuration}
             boardRect={{ width: boardWidth, height: boardHeight }}
           />
         ))}
