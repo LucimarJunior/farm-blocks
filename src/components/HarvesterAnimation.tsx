@@ -10,21 +10,28 @@ interface HarvesterProps {
  harvesterId: HarvesterId;
  duration: number;
 }
+
+/** The motion track covers the entire board. The sprite moves only along its completed row/column. */
 export const HarvesterAnimation:React.FC<HarvesterProps> = ({line,direction,harvesterId,duration}) => {
- const effectiveDirection = direction || (line.orientation==='row'?'right':'up');
+ const travel:HarvesterDirection = direction || (line.orientation==='row'?'right':'up');
  const isRow=line.orientation==='row';
- const crossSpanPct=13.2;
- const lengthSpanPct=23.77;
- const widthPct=isRow?lengthSpanPct:crossSpanPct;
- const heightPct=isRow?crossSpanPct:lengthSpanPct;
- const leftPosPct=isRow?0:line.index*12.5+(12.5-crossSpanPct)/2;
- const topPosPct=isRow?line.index*12.5+(12.5-crossSpanPct)/2:0;
- const animClass='animate-harvester-'+effectiveDirection;
- // PNG top view has the cutter at the top. Rotate the entire machine for travel.
+ // Square sprite viewport avoids clipping the full combine when rotated by 90 degrees.
+ const size=23;
+ const lane=(line.index+0.5)*12.5;
+ const top=isRow?`calc(${lane}% - ${size/2}%)`:undefined;
+ const left=!isRow?`calc(${lane}% - ${size/2}%)`:undefined;
  const rotation:Record<HarvesterDirection,number>={up:0,right:90,down:180,left:270};
- return <div className="absolute pointer-events-none z-30 select-none overflow-visible" style={{left:`${leftPosPct}%`,top:`${topPosPct}%`,width:`${widthPct}%`,height:`${heightPct}%`}}>
-  <div className={`w-full h-full relative drop-shadow-[0_4px_8px_rgba(0,0,0,0.65)] ${animClass}`} style={{animationDuration:`${duration}ms`}}>
-   <div className="w-full h-full" style={{transform:`rotate(${effectiveDirection==='down'?0:rotation[effectiveDirection]}deg)`}}><HarvesterImage id={harvesterId} view={effectiveDirection==='down'?'superior_invertida':'superior'} className="w-full h-full object-contain pointer-events-none select-none block" /></div>
-  </div>
+ const animation=isRow?'farm-harvester-horizontal':'farm-harvester-vertical';
+ const reverse=travel==='left'||travel==='up';
+ return <div className="absolute inset-0 pointer-events-none z-40 overflow-visible">
+   <div className="absolute pointer-events-none" style={{
+      width:`${size}%`,height:`${size}%`,top,left,
+      animation:`${animation} ${duration}ms linear both`,
+      animationDirection:reverse?'reverse':'normal',
+    }}>
+     <div className="w-full h-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.65)]" style={{transform:`rotate(${rotation[travel]}deg)`}}>
+       <HarvesterImage id={harvesterId} view="superior" className="block w-full h-full object-contain" />
+     </div>
+   </div>
  </div>;
 };
