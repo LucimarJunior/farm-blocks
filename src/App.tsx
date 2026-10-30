@@ -32,6 +32,7 @@ import { GameOverModal, RulesModal } from './components/Modals';
 import { RankingModal } from './components/RankingModal';
 import { AchievementsModal, AchievementData, loadAchievements, advanceAchievements } from './components/Achievements';
 import { RoundBonus, BonusState, initialBonus, updateBonus } from './components/RoundBonus';
+import { GarageModal, loadGarage, rewardFinishedMatch, HARVESTERS, GarageData } from './components/Garage';
 
 interface DragState {
   piece: Piece;
@@ -142,6 +143,8 @@ export default function App() {
   const [showRules, setShowRules] = useState<boolean>(false);
   const [showRanking, setShowRanking] = useState<boolean>(false);
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showGarage, setShowGarage] = useState(false);
+  const [garage, setGarage] = useState<GarageData>(loadGarage);
   const [achievementsData, setAchievementsData] = useState<AchievementData>(loadAchievements);
   const achievementsRef = useRef(achievementsData);
   const [achievementNotice, setAchievementNotice] = useState('');
@@ -153,6 +156,7 @@ export default function App() {
   };
   const finishAchievements = (id: string, finalScore: number) => {
     awardAchievements({ finishedMatch: { id, score: finalScore } });
+    setGarage(prev => rewardFinishedMatch(prev,id,finalScore));
   };
   const [isFirstTime, setIsFirstTime] = useState<boolean>(() => {
     return !localStorage.getItem(STORAGE_KEYS.FIRST_TIME);
@@ -652,7 +656,7 @@ export default function App() {
             // Frame-based calculation (Problem 3: Calculate position every frame via RAF)
             const frame = (now: number) => {
               const elapsed = now - passStartTime;
-              const progress = Math.min(1.0, elapsed / 2500);
+              const progress = Math.min(1.0, elapsed / (HARVESTERS.find(m=>m.id===garage.equipped)?.duration || 3500));
 
               let boardChanged = false;
               const newTriggers: ParticleTrigger[] = [];
@@ -784,6 +788,7 @@ export default function App() {
         stats={stats}
         onOpenBonus={() => setShowBonus(true)}
         onOpenAchievements={() => setShowAchievements(true)}
+        onOpenGarage={() => setShowGarage(true)}
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
         onRestart={handleRestart}
@@ -804,6 +809,8 @@ export default function App() {
           hoverPreview={hoverPreview}
           clearingCells={clearingCells}
           activeHarvesters={activeHarvesters}
+          harvesterId={garage.equipped}
+          harvesterDuration={HARVESTERS.find(m=>m.id===garage.equipped)?.duration || 3500}
           particleTriggers={particleTriggers}
           scorePopups={scorePopups}
         />
@@ -852,6 +859,7 @@ export default function App() {
         isFirstTime={isFirstTime}
       />
 
+      <GarageModal open={showGarage} onClose={() => setShowGarage(false)} data={garage} onChange={setGarage} />
       <RankingModal isOpen={showRanking} onClose={() => setShowRanking(false)} />
       {showAchievements && <AchievementsModal data={achievementsData} onClose={() => setShowAchievements(false)} />}
       {achievementNotice && <button onClick={() => setAchievementNotice('')} className="fixed top-20 left-1/2 -translate-x-1/2 z-[99] max-w-[95vw] bg-emerald-800 border-2 border-yellow-400 rounded-xl p-3 text-yellow-200 font-black text-xs shadow-2xl">{achievementNotice} ✕</button>}
