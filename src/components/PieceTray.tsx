@@ -8,6 +8,9 @@ interface PieceTrayProps {
   board: Board;
   activeDragPieceId: string | null;
   disabled?: boolean;
+  rotationCost?: number;
+  rotationCurrency?: string;
+  onRotatePiece?: (id:string)=>void;
   onPointerDownPiece: (e: React.PointerEvent, piece: Piece, originRect: DOMRect) => void;
 }
 
@@ -35,6 +38,9 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
   activeDragPieceId,
   disabled = false,
   onPointerDownPiece,
+  rotationCost,
+  rotationCurrency,
+  onRotatePiece,
 }) => {
   return (
     <div className={`w-full max-w-[400px] mx-auto px-2 py-1 flex items-center justify-between gap-2.5 z-10 h-[100px] sm:h-[110px] shrink-0 ${disabled ? 'pointer-events-none' : ''}`}>
@@ -56,7 +62,7 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
           <div
             key={piece.id}
             data-piece-id={piece.id}
-            className={`flex-1 h-full rounded-2xl bg-amber-950/65 backdrop-blur-sm border-2 border-amber-800/60 shadow-lg p-1.5 flex items-center justify-center select-none transition-all duration-150 touch-none ${
+            className={`relative flex-1 h-full rounded-2xl bg-amber-950/65 backdrop-blur-sm border-2 border-amber-800/60 shadow-lg p-1.5 flex items-center justify-center select-none transition-all duration-150 touch-none ${
               disabled
                 ? 'opacity-50 cursor-not-allowed'
                 : isDragging
@@ -73,6 +79,13 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
             }}
           >
             <PieceRender shape={piece.shape} crop={piece.crop} cellSize={trayCellSize} />
+            {onRotatePiece && rotationCost !== undefined && <button type="button"
+              aria-label={`Girar peça por ${rotationCost} ${rotationCurrency}`}
+              title={`Girar 90° • ${rotationCost} ${rotationCurrency}`}
+              onPointerDown={e=>e.stopPropagation()}
+              onClick={e=>{e.stopPropagation();onRotatePiece(piece.id);}}
+              disabled={disabled || isDragging}
+              className="absolute -top-2 -right-1 z-20 rounded-full bg-yellow-400 text-amber-950 border-2 border-amber-950 px-2 py-1 text-[10px] font-black shadow-lg disabled:opacity-40">↻ {rotationCost}{rotationCurrency}</button>}
           </div>
         );
       })}
