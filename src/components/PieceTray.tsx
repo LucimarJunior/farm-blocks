@@ -8,10 +8,8 @@ interface PieceTrayProps {
   board: Board;
   activeDragPieceId: string | null;
   disabled?: boolean;
-  rotationCost?: number;
-  rotationCurrency?: string;
-  rotationTurns?: Record<string,number>;
-  onRotatePiece?: (id:string,direction:'left'|'right')=>void;
+  selectedPieceId?: string | null;
+  onSelectPiece?: (id:string)=>void;
   onPointerDownPiece: (e: React.PointerEvent, piece: Piece, originRect: DOMRect) => void;
 }
 
@@ -39,10 +37,8 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
   activeDragPieceId,
   disabled = false,
   onPointerDownPiece,
-  rotationCost,
-  rotationCurrency,
-  rotationTurns = {},
-  onRotatePiece,
+  selectedPieceId,
+  onSelectPiece,
 }) => {
   return (
     <div className={`w-full max-w-[400px] mx-auto px-2 py-1 flex items-center justify-between gap-2.5 z-10 h-[100px] sm:h-[110px] shrink-0 ${disabled ? 'pointer-events-none' : ''}`}>
@@ -57,9 +53,6 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
         }
 
         const canFit = canPlaceShapeAnywhere(board, piece.shape);
-        const freeTurns=rotationTurns[piece.id]||0;
-        const canRotate=freeTurns>0 || rotationCost!==undefined;
-        const costLabel=freeTurns>0?`${freeTurns} giros`:`${rotationCost}${rotationCurrency}`;
         const isDragging = activeDragPieceId === piece.id;
         const trayCellSize = getOptimalPieceCellSize(piece.shape);
 
@@ -84,19 +77,15 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
             }}
           >
             <PieceRender shape={piece.shape} crop={piece.crop} cellSize={trayCellSize} />
-            {onRotatePiece && canRotate && <div className="absolute -top-3 left-0 right-0 z-20 flex justify-center gap-1 pointer-events-none">
-              <button type="button" aria-label={`Girar peça 90° para esquerda por ${costLabel}`}
-                title={`Girar à esquerda • ${rotationCost} ${rotationCurrency}`}
-                onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();onRotatePiece(piece.id,'left');}}
-                disabled={disabled || isDragging}
-                className="pointer-events-auto rounded-full bg-yellow-400 text-amber-950 border-2 border-amber-950 px-2 py-1 text-xs font-black shadow-lg disabled:opacity-40">↶</button>
-              <span className="self-center rounded bg-amber-950/90 px-1 text-[10px] font-black text-yellow-200">{costLabel}</span>
-              <button type="button" aria-label={`Girar peça 90° para direita por ${rotationCost} ${rotationCurrency}`}
-                title={`Girar à direita • ${rotationCost} ${rotationCurrency}`}
-                onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();onRotatePiece(piece.id,'right');}}
-                disabled={disabled || isDragging}
-                className="pointer-events-auto rounded-full bg-yellow-400 text-amber-950 border-2 border-amber-950 px-2 py-1 text-xs font-black shadow-lg disabled:opacity-40">↷</button>
-            </div>}
+            {onSelectPiece && <button type="button"
+              aria-label={`Selecionar peça ${index+1} para girar`}
+              aria-pressed={selectedPieceId===piece.id}
+              onPointerDown={e=>e.stopPropagation()}
+              onClick={e=>{e.stopPropagation();onSelectPiece(piece.id);}}
+              disabled={disabled || isDragging}
+              className={`absolute bottom-0 left-1/2 -translate-x-1/2 z-20 rounded-t-lg px-2 py-0.5 text-[10px] font-bold border border-amber-500/70 shadow-sm ${selectedPieceId===piece.id?'bg-yellow-400 text-amber-950':'bg-amber-950/95 text-yellow-200'}`}>
+              {selectedPieceId===piece.id?'✓ Selecionada':'↻ Selecionar'}
+            </button>}
           </div>
         );
       })}
