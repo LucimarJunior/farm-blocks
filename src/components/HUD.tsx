@@ -9,6 +9,7 @@ interface HUDProps {
   stats: GameStats;
   onOpenBonus: () => void;
   onOpenAchievements: () => void;
+  onOpenGarage: () => void;
   soundEnabled: boolean;
   onToggleSound: () => void;
   onRestart: () => void;
@@ -22,6 +23,7 @@ export const HUD: React.FC<HUDProps> = ({
   stats,
   onOpenBonus,
   onOpenAchievements,
+  onOpenGarage,
   soundEnabled,
   onToggleSound,
   onRestart,
@@ -49,6 +51,7 @@ export const HUD: React.FC<HUDProps> = ({
         {/* Action Controls */}
         <div className="flex items-center gap-1">
           <button onClick={onOpenBonus} title="Bônus de Colheita" aria-label="Abrir bônus de colheita" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-950/70 border border-yellow-600/60 text-yellow-200 flex items-center justify-center shadow-sm text-sm">🚜</button>
+          <button onClick={onOpenGarage} title="Garagem e Loja" aria-label="Abrir garagem e loja" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-950/70 border border-yellow-600/60 text-yellow-200 flex items-center justify-center shadow-sm text-sm">🛒</button>
           <button onClick={onOpenAchievements} title="Conquistas" aria-label="Abrir conquistas" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-950/70 border border-yellow-600/60 text-yellow-200 flex items-center justify-center shadow-sm text-sm">🏅</button>
           <DailyMissions score={score} stats={stats} />
           <button onClick={onOpenRanking} title="Ranking Mundial" aria-label="Abrir ranking mundial" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-950/70 border border-yellow-600/60 text-yellow-300 flex items-center justify-center shadow-sm"><Trophy className="w-3.5 h-3.5" /></button>
