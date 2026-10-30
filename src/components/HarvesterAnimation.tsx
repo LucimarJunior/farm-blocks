@@ -18,9 +18,11 @@ export const HarvesterAnimation:React.FC<HarvesterProps> = ({line,direction,harv
  // Square sprite viewport avoids clipping the full combine when rotated by 90 degrees.
  const size=32.2; // 40% larger than the previous 23% viewport
  const lane=(line.index+0.5)*12.5;
- // Align the sprite's center with the first and last cell centers (6.25% and 93.75%).
- const start=6.25-size/2;
- const end=93.75-size/2;
+ // Small inset compensates for the cutter extending beyond the sprite's center.
+ // Keep the full machine visible while still sweeping the first and last tiles.
+ const edgeInset=2.5;
+ const start=6.25+edgeInset-size/2;
+ const end=93.75-edgeInset-size/2;
  const top=isRow?`calc(${lane}% - ${size/2}%)`:undefined;
  const left=!isRow?`calc(${lane}% - ${size/2}%)`:undefined;
  const rotation:Record<HarvesterDirection,number>={up:0,right:90,down:180,left:270};
