@@ -1,0 +1,254 @@
+[
+  {
+    "file": "pioneira_superior.png",
+    "model": "pioneira",
+    "view": "superior",
+    "size": [
+      178,
+      185
+    ]
+  },
+  {
+    "file": "massey_ferguson_510_superior.png",
+    "model": "massey_ferguson_510",
+    "view": "superior",
+    "size": [
+      180,
+      184
+    ]
+  },
+  {
+    "file": "john_deere_975_superior.png",
+    "model": "john_deere_975",
+    "view": "superior",
+    "size": [
+      180,
+      184
+    ]
+  },
+  {
+    "file": "massey_ferguson_3640_superior.png",
+    "model": "massey_ferguson_3640",
+    "view": "superior",
+    "size": [
+      206,
+      185
+    ]
+  },
+  {
+    "file": "new_holland_tc57_superior.png",
+    "model": "new_holland_tc57",
+    "view": "superior",
+    "size": [
+      190,
+      186
+    ]
+  },
+  {
+    "file": "case_ih_8250_superior.png",
+    "model": "case_ih_8250",
+    "view": "superior",
+    "size": [
+      190,
+      187
+    ]
+  },
+  {
+    "file": "john_deere_x9_1100_superior.png",
+    "model": "john_deere_x9_1100",
+    "view": "superior",
+    "size": [
+      202,
+      186
+    ]
+  },
+  {
+    "file": "pioneira_lateral_esquerda.png",
+    "model": "pioneira",
+    "view": "lateral_esquerda",
+    "size": [
+      240,
+      222
+    ]
+  },
+  {
+    "file": "massey_ferguson_510_lateral_esquerda.png",
+    "model": "massey_ferguson_510",
+    "view": "lateral_esquerda",
+    "size": [
+      254,
+      222
+    ]
+  },
+  {
+    "file": "john_deere_975_lateral_esquerda.png",
+    "model": "john_deere_975",
+    "view": "lateral_esquerda",
+    "size": [
+      253,
+      222
+    ]
+  },
+  {
+    "file": "massey_ferguson_3640_lateral_esquerda.png",
+    "model": "massey_ferguson_3640",
+    "view": "lateral_esquerda",
+    "size": [
+      236,
+      222
+    ]
+  },
+  {
+    "file": "new_holland_tc57_lateral_esquerda.png",
+    "model": "new_holland_tc57",
+    "view": "lateral_esquerda",
+    "size": [
+      251,
+      222
+    ]
+  },
+  {
+    "file": "case_ih_8250_lateral_esquerda.png",
+    "model": "case_ih_8250",
+    "view": "lateral_esquerda",
+    "size": [
+      240,
+      222
+    ]
+  },
+  {
+    "file": "john_deere_x9_1100_lateral_esquerda.png",
+    "model": "john_deere_x9_1100",
+    "view": "lateral_esquerda",
+    "size": [
+      245,
+      222
+    ]
+  },
+  {
+    "file": "pioneira_lateral_direita.png",
+    "model": "pioneira",
+    "view": "lateral_direita",
+    "size": [
+      249,
+      221
+    ]
+  },
+  {
+    "file": "massey_ferguson_510_lateral_direita.png",
+    "model": "massey_ferguson_510",
+    "view": "lateral_direita",
+    "size": [
+      254,
+      221
+    ]
+  },
+  {
+    "file": "john_deere_975_lateral_direita.png",
+    "model": "john_deere_975",
+    "view": "lateral_direita",
+    "size": [
+      253,
+      221
+    ]
+  },
+  {
+    "file": "massey_ferguson_3640_lateral_direita.png",
+    "model": "massey_ferguson_3640",
+    "view": "lateral_direita",
+    "size": [
+      254,
+      221
+    ]
+  },
+  {
+    "file": "new_holland_tc57_lateral_direita.png",
+    "model": "new_holland_tc57",
+    "view": "lateral_direita",
+    "size": [
+      253,
+      221
+    ]
+  },
+  {
+    "file": "case_ih_8250_lateral_direita.png",
+    "model": "case_ih_8250",
+    "view": "lateral_direita",
+    "size": [
+      254,
+      221
+    ]
+  },
+  {
+    "file": "john_deere_x9_1100_lateral_direita.png",
+    "model": "john_deere_x9_1100",
+    "view": "lateral_direita",
+    "size": [
+      253,
+      221
+    ]
+  },
+  {
+    "file": "pioneira_superior_invertida.png",
+    "model": "pioneira",
+    "view": "superior_invertida",
+    "size": [
+      181,
+      186
+    ]
+  },
+  {
+    "file": "massey_ferguson_510_superior_invertida.png",
+    "model": "massey_ferguson_510",
+    "view": "superior_invertida",
+    "size": [
+      187,
+      186
+    ]
+  },
+  {
+    "file": "john_deere_975_superior_invertida.png",
+    "model": "john_deere_975",
+    "view": "superior_invertida",
+    "size": [
+      185,
+      186
+    ]
+  },
+  {
+    "file": "massey_ferguson_3640_superior_invertida.png",
+    "model": "massey_ferguson_3640",
+    "view": "superior_invertida",
+    "size": [
+      208,
+      188
+    ]
+  },
+  {
+    "file": "new_holland_tc57_superior_invertida.png",
+    "model": "new_holland_tc57",
+    "view": "superior_invertida",
+    "size": [
+      195,
+      188
+    ]
+  },
+  {
+    "file": "case_ih_8250_superior_invertida.png",
+    "model": "case_ih_8250",
+    "view": "superior_invertida",
+    "size": [
+      192,
+      188
+    ]
+  },
+  {
+    "file": "john_deere_x9_1100_superior_invertida.png",
+    "model": "john_deere_x9_1100",
+    "view": "superior_invertida",
+    "size": [
+      202,
+      188
+    ]
+  }
+]
