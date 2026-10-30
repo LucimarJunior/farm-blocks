@@ -63,7 +63,7 @@ export function GarageModal({open,onClose,data,onChange}:{open:boolean;onClose:(
     {HARVESTERS.filter(m=>tab==='shop'||data.owned.includes(m.id)).map(m=>{
       const owned=data.owned.includes(m.id),equipped=data.equipped===m.id;
       return <div key={m.id} className={`bg-amber-900/80 rounded-xl border p-2 flex flex-col gap-1 ${equipped?'border-yellow-400':'border-amber-700'}`}>
-       <div className="w-full h-36 flex items-center justify-center overflow-hidden rounded-lg bg-black/10"><HarvesterImage id={m.id} className="block max-w-full max-h-full" /></div>
+       <div className="w-full h-52 shrink-0 rounded-lg bg-black/10" role="img" aria-label={`Vista superior completa da ${m.name}`} style={{backgroundImage:`url("${import.meta.env.BASE_URL}harvesters/${SPRITE_NAMES[m.id]}_superior.png?v=20261030b")`,backgroundPosition:"center",backgroundSize:"contain",backgroundRepeat:"no-repeat"}} />
        <strong className="text-xs leading-tight">{m.name}</strong>
        <span className="text-[10px] text-amber-200">{m.width.toLocaleString('pt-BR')} m • {(m.duration/1000).toLocaleString('pt-BR')} s/linha</span>
        <button disabled={equipped||(m.premium&&!owned)||(!owned&&data.coins<m.coins)} onClick={()=>onChange(owned?equipHarvester(data,m.id):buyHarvester(data,m.id))} className="mt-auto bg-emerald-700 disabled:bg-stone-700 disabled:text-stone-300 rounded-lg px-2 py-2 text-xs font-bold">
