@@ -18,7 +18,9 @@ export const HarvesterAnimation:React.FC<HarvesterProps> = ({line,direction,harv
  // Square sprite viewport avoids clipping the full combine when rotated by 90 degrees.
  const size=32.2; // 40% larger than the previous 23% viewport
  const lane=(line.index+0.5)*12.5;
- const end=100-size;
+ // Align the sprite's center with the first and last cell centers (6.25% and 93.75%).
+ const start=6.25-size/2;
+ const end=93.75-size/2;
  const top=isRow?`calc(${lane}% - ${size/2}%)`:undefined;
  const left=!isRow?`calc(${lane}% - ${size/2}%)`:undefined;
  const rotation:Record<HarvesterDirection,number>={up:0,right:90,down:180,left:270};
@@ -27,6 +29,7 @@ export const HarvesterAnimation:React.FC<HarvesterProps> = ({line,direction,harv
  return <div className="absolute inset-0 pointer-events-none z-40 overflow-visible">
    <div className="absolute pointer-events-none" style={{
       width:`${size}%`,height:`${size}%`,top,left,
+      ['--harvester-start' as string]:`${start}%`,
       ['--harvester-end' as string]:`${end}%`,
       animation:`${animation} ${duration}ms linear both`,
       animationDirection:reverse?'reverse':'normal',
