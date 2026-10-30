@@ -131,27 +131,36 @@ export default function App() {
     try { const saved=JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME)||'null'); return Number.isInteger(saved?.rotationsUsed)?Math.max(0,Math.min(3,saved.rotationsUsed)):0; }
     catch { return 0; }
   });
+  const [rotationTurns,setRotationTurns]=useState<Record<string,number>>(()=>{
+    try { const saved=JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME)||'null'); return saved?.rotationTurns && typeof saved.rotationTurns==='object'?saved.rotationTurns:{}; }
+    catch {return {};}
+  });
   const [rotationNotice,setRotationNotice]=useState('');
   const rotationPrices=[25,30,50] as const;
   const handleRotatePiece=(id:string,direction:'left'|'right')=>{
-    if (phase!=='READY'||isHarvesting||showGameOver||rotationsUsed>=3) return;
+    if (phase!=='READY'||isHarvesting||showGameOver) return;
     const piece=trayPieces.find(p=>p.id===id&&!p.used);
     if (!piece) return;
     const shape=piece.shape;
     const rotated=direction==='right'
       ? shape[0].map((_,c)=>shape.map(row=>row[c]).reverse())
       : shape[0].map((_,c)=>shape.map(row=>row[shape[0].length-1-c]));
-    if(JSON.stringify(rotated)===JSON.stringify(shape)) { setRotationNotice('Esta peça não muda ao girar.'); return; }
-    const cost=rotationPrices[rotationsUsed];
-    if(rotationsUsed===0) {
-      if(getMissionCoins()<cost || !spendMissionCoins(cost)) {setRotationNotice('Moedas 🌾 insuficientes nas Missões da Fazenda.');return;}
-    } else {
-      if(garage.coins<cost) {setRotationNotice('Moedas 🪙 insuficientes na garagem.');return;}
-      setGarage(prev=>{if(prev.coins<cost)return prev;const next={...prev,coins:prev.coins-cost};persistGarage(next);return next;});
+    if(JSON.stringify(rotated)===JSON.stringify(shape)) {setRotationNotice('Esta peça não muda ao girar.');return;}
+    const remaining=rotationTurns[id]||0;
+    if(remaining===0) {
+      if(rotationsUsed>=3) {setRotationNotice('As três oportunidades desta partida já foram compradas.');return;}
+      const cost=rotationPrices[rotationsUsed];
+      if(rotationsUsed===0) {
+        if(getMissionCoins()<cost || !spendMissionCoins(cost)) {setRotationNotice('Moedas 🌾 insuficientes nas Missões da Fazenda.');return;}
+      } else {
+        if(garage.coins<cost) {setRotationNotice('Moedas 🪙 insuficientes na garagem.');return;}
+        const next={...garage,coins:garage.coins-cost};persistGarage(next);setGarage(next);
+      }
+      setRotationsUsed(n=>n+1);
     }
     setTrayPieces(prev=>prev.map(p=>p.id===id?{...p,shape:rotated}:p));
-    setRotationsUsed(n=>n+1);
-    setRotationNotice(direction==='left'?'Peça girada 90° à esquerda!':'Peça girada 90° à direita!');
+    setRotationTurns(prev=>({...prev,[id]:remaining>0?remaining-1:2}));
+    setRotationNotice(remaining>0?`Rotação realizada! Restam ${remaining-1} giros nesta peça.`:'Oportunidade comprada! Restam 2 giros gratuitos nesta peça.');
   };
 
   const [matchId, setMatchId] = useState<string>(() => {
@@ -261,12 +270,13 @@ export default function App() {
           bonus,
           matchId,
           rotationsUsed,
+          rotationTurns,
         })
       );
     } catch {
       // ignore
     }
-  }, [board, score, trayPieces, stats, highScore, bonus, matchId, rotationsUsed]);
+  }, [board, score, trayPieces, stats, highScore, bonus, matchId, rotationsUsed, rotationTurns]);
 
   // Award mission points once as soon as harvest statistics reach a target.
   useEffect(() => {
@@ -333,6 +343,7 @@ export default function App() {
     setScore(0);
     setMatchId(crypto.randomUUID());
     setRotationsUsed(0);
+    setRotationTurns({});
     setRotationNotice('');
     bonusRef.current = initialBonus();
     setBonus(bonusRef.current);
@@ -851,7 +862,7 @@ export default function App() {
       </section>
 
       {rotationNotice && <button onClick={()=>setRotationNotice('')} className="z-30 mx-auto max-w-[95vw] rounded-lg bg-amber-900 border border-yellow-500 px-3 py-1 text-xs font-bold text-yellow-100">{rotationNotice} ✕</button>}
-      <div className="text-center text-[11px] font-bold text-amber-200">🔄 Rotações: {rotationsUsed}/3 por partida {rotationsUsed>=3?'• Limite atingido':''}</div>
+      <div className="text-center text-[11px] font-bold text-amber-200">🔄 Oportunidades compradas: {rotationsUsed}/3 • Cada oportunidade permite 3 giros</div>
       {/* Bottom Tray with 3 Pieces */}
       <section aria-label="Bandeja de Peças" className="w-full pb-1 z-10 shrink-0">
         <div className="w-full max-w-[400px] mx-auto text-center mb-0.5">
@@ -867,6 +878,7 @@ export default function App() {
           onPointerDownPiece={handlePointerDownPiece}
           onRotatePiece={handleRotatePiece}
           rotationCost={rotationsUsed<3?rotationPrices[rotationsUsed]:undefined}
+          rotationTurns={rotationTurns}
           rotationCurrency={rotationsUsed===0?'🌾':'🪙'}
         />
       </section>
