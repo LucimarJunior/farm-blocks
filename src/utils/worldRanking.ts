@@ -61,3 +61,33 @@ export async function saveFinishedMatch(name: string, score: number, matchId: st
   });
   if (!response.ok) throw new Error('Não foi possível registrar a partida. Configure a migração SQL dos rankings no Supabase.');
 }
+
+const PENDING_KEY = 'farm_blocks_pending_matches_v1';
+type PendingMatch = { matchId:string; score:number; name:string };
+function pendingMatches():PendingMatch[] {
+  try { const data=JSON.parse(localStorage.getItem(PENDING_KEY)||'[]'); return Array.isArray(data)?data:[]; }
+  catch { return []; }
+}
+export function queueFinishedMatch(name:string,score:number,matchId:string):void {
+  const playerName=name.trim();
+  if(!playerName||!matchId||!Number.isSafeInteger(score)||score<0) return;
+  const matches=pendingMatches();
+  if(!matches.some(m=>m.matchId===matchId)) {
+    matches.push({name:playerName,score,matchId});
+    localStorage.setItem(PENDING_KEY,JSON.stringify(matches));
+  }
+}
+let flushing:Promise<void>|null=null;
+export function flushFinishedMatches():Promise<void> {
+  if(flushing) return flushing;
+  flushing=(async()=>{
+    for(const item of pendingMatches()) {
+      try {
+        await saveFinishedMatch(item.name,item.score,item.matchId);
+        localStorage.setItem(PENDING_KEY,JSON.stringify(pendingMatches().filter(m=>m.matchId!==item.matchId)));
+      } catch { break; }
+    }
+  })().finally(()=>{flushing=null;});
+  return flushing;
+}
+export function pendingFinishedMatchesCount():number { return pendingMatches().length; }
