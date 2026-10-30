@@ -37,8 +37,19 @@ export function equipHarvester(d:GarageData,id:HarvesterId):GarageData {
   if(!d.owned.includes(id)) return d;
   const next={...d,equipped:id};persistGarage(next);return next;
 }
-export function HarvesterImage({id,className=''}:{id:HarvesterId;className?:string}) {
-  return <img src={`${import.meta.env.BASE_URL}harvesters/${id}.svg`} alt={HARVESTERS.find(h=>h.id===id)?.name||id} className={className} draggable={false}/>;
+const SPRITE_NAMES: Record<HarvesterId,string> = {
+  pioneira:'pioneira',
+  mf510:'massey_ferguson_510',
+  jd975:'john_deere_975',
+  mf3640:'massey_ferguson_3640',
+  tc57:'new_holland_tc57',
+  case8250:'case_ih_8250',
+  x91100:'john_deere_x9_1100',
+};
+export type HarvesterView = 'superior'|'superior_invertida'|'lateral_esquerda'|'lateral_direita';
+export function HarvesterImage({id,className='',view='superior'}:{id:HarvesterId;className?:string;view?:HarvesterView}) {
+  const name=SPRITE_NAMES[id];
+  return <img src={`${import.meta.env.BASE_URL}harvesters/${name}_${view}.png`} alt={HARVESTERS.find(h=>h.id===id)?.name||id} className={className} draggable={false}/>;
 }
 export function GarageModal({open,onClose,data,onChange}:{open:boolean;onClose:()=>void;data:GarageData;onChange:(d:GarageData)=>void}) {
  const [tab,setTab]=useState<'garage'|'shop'>('shop');
