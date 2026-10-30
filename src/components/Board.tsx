@@ -164,17 +164,6 @@ export const Board: React.FC<BoardProps> = ({
         {/* Agricultural Particles Canvas (Leaves, Chaff, Grain) */}
         <HarvestParticles triggers={particleTriggers} />
 
-        {/* Combine Harvesters Sweeping through completed lines */}
-        {activeHarvesters.map((harvester, idx) => (
-          <HarvesterAnimation
-            key={`${harvester.orientation}_${harvester.index}_${idx}`}
-            line={harvester}
-            harvesterId={harvesterId}
-            duration={harvesterDuration}
-            boardRect={{ width: boardWidth, height: boardHeight }}
-          />
-        ))}
-
         {/* Floating Score Indicators */}
         {scorePopups.map((popup) => (
           <div
@@ -198,6 +187,18 @@ export const Board: React.FC<BoardProps> = ({
               </span>
             )}
           </div>
+        ))}
+      </div>
+      {/* Render the harvester above the soil bed, outside its overflow-hidden clipping region. */}
+      <div className="absolute inset-1.5 sm:inset-2 pointer-events-none z-40 overflow-visible">
+        {activeHarvesters.map((harvester, idx) => (
+          <HarvesterAnimation
+            key={`${harvester.orientation}_${harvester.index}_${idx}`}
+            line={harvester}
+            harvesterId={harvesterId}
+            duration={harvesterDuration}
+            boardRect={{ width: boardWidth, height: boardHeight }}
+          />
         ))}
       </div>
     </div>
