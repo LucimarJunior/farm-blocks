@@ -49,7 +49,7 @@ const SPRITE_NAMES: Record<HarvesterId,string> = {
 export type HarvesterView = 'superior'|'superior_invertida'|'lateral_esquerda'|'lateral_direita';
 export function HarvesterImage({id,className='',view='superior'}:{id:HarvesterId;className?:string;view?:HarvesterView}) {
   const name=SPRITE_NAMES[id];
-  return <img src={`${import.meta.env.BASE_URL}harvesters/${name}_${view}.png`} alt={HARVESTERS.find(h=>h.id===id)?.name||id} className={className} draggable={false}/>;
+  return <img src={`${import.meta.env.BASE_URL}harvesters/${name}_${view}.png`} alt={HARVESTERS.find(h=>h.id===id)?.name||id} className={className} style={{width:"100%",height:"100%",objectFit:"contain",objectPosition:"center"}} draggable={false}/>;
 }
 export function GarageModal({open,onClose,data,onChange}:{open:boolean;onClose:()=>void;data:GarageData;onChange:(d:GarageData)=>void}) {
  const [tab,setTab]=useState<'garage'|'shop'>('shop');
@@ -63,7 +63,7 @@ export function GarageModal({open,onClose,data,onChange}:{open:boolean;onClose:(
     {HARVESTERS.filter(m=>tab==='shop'||data.owned.includes(m.id)).map(m=>{
       const owned=data.owned.includes(m.id),equipped=data.equipped===m.id;
       return <div key={m.id} className={`bg-amber-900/80 rounded-xl border p-2 flex flex-col gap-1 ${equipped?'border-yellow-400':'border-amber-700'}`}>
-       <HarvesterImage id={m.id} className="w-full h-24 object-contain"/>
+       <div className="w-full h-36 flex items-center justify-center overflow-hidden rounded-lg bg-black/10"><HarvesterImage id={m.id} className="block max-w-full max-h-full" /></div>
        <strong className="text-xs leading-tight">{m.name}</strong>
        <span className="text-[10px] text-amber-200">{m.width.toLocaleString('pt-BR')} m • {(m.duration/1000).toLocaleString('pt-BR')} s/linha</span>
        <button disabled={equipped||(m.premium&&!owned)||(!owned&&data.coins<m.coins)} onClick={()=>onChange(owned?equipHarvester(data,m.id):buyHarvester(data,m.id))} className="mt-auto bg-emerald-700 disabled:bg-stone-700 disabled:text-stone-300 rounded-lg px-2 py-2 text-xs font-bold">
