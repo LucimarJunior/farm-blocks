@@ -33,7 +33,8 @@ import { flushFinishedMatches } from './utils/worldRanking';
 import { RankingModal } from './components/RankingModal';
 import { AchievementsModal, AchievementData, loadAchievements, advanceAchievements } from './components/Achievements';
 import { RoundBonus, BonusState, initialBonus, updateBonus } from './components/RoundBonus';
-import { GarageModal, loadGarage, rewardFinishedMatch, HARVESTERS, GarageData } from './components/Garage';
+import { GarageModal, loadGarage, rewardFinishedMatch, persistGarage, HARVESTERS, GarageData } from './components/Garage';
+import { spendMissionCoins, getMissionCoins } from './components/DailyMissions';
 
 interface DragState {
   piece: Piece;
@@ -125,6 +126,31 @@ export default function App() {
   });
 
   useEffect(() => { void flushFinishedMatches(); }, []);
+
+  const [rotationsUsed, setRotationsUsed] = useState<number>(() => {
+    try { const saved=JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME)||'null'); return Number.isInteger(saved?.rotationsUsed)?Math.max(0,Math.min(3,saved.rotationsUsed)):0; }
+    catch { return 0; }
+  });
+  const [rotationNotice,setRotationNotice]=useState('');
+  const rotationPrices=[25,30,50] as const;
+  const handleRotatePiece=(id:string)=>{
+    if (phase!=='READY'||isHarvesting||showGameOver||rotationsUsed>=3) return;
+    const piece=trayPieces.find(p=>p.id===id&&!p.used);
+    if (!piece) return;
+    const shape=piece.shape;
+    const rotated=shape[0].map((_,c)=>shape.map(row=>row[c]).reverse());
+    if(JSON.stringify(rotated)===JSON.stringify(shape)) { setRotationNotice('Esta peça não muda ao girar.'); return; }
+    const cost=rotationPrices[rotationsUsed];
+    if(rotationsUsed===0) {
+      if(getMissionCoins()<cost || !spendMissionCoins(cost)) {setRotationNotice('Moedas 🌾 insuficientes nas Missões da Fazenda.');return;}
+    } else {
+      if(garage.coins<cost) {setRotationNotice('Moedas 🪙 insuficientes na garagem.');return;}
+      setGarage(prev=>{if(prev.coins<cost)return prev;const next={...prev,coins:prev.coins-cost};persistGarage(next);return next;});
+    }
+    setTrayPieces(prev=>prev.map(p=>p.id===id?{...p,shape:rotated}:p));
+    setRotationsUsed(n=>n+1);
+    setRotationNotice('Peça girada 90°!');
+  };
 
   const [matchId, setMatchId] = useState<string>(() => {
     try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_GAME) || 'null'); if (saved?.matchId) return saved.matchId; } catch { /* ignore */ }
@@ -232,12 +258,13 @@ export default function App() {
           stats: { ...stats, score, highScore },
           bonus,
           matchId,
+          rotationsUsed,
         })
       );
     } catch {
       // ignore
     }
-  }, [board, score, trayPieces, stats, highScore, bonus, matchId]);
+  }, [board, score, trayPieces, stats, highScore, bonus, matchId, rotationsUsed]);
 
   // Award mission points once as soon as harvest statistics reach a target.
   useEffect(() => {
@@ -303,6 +330,8 @@ export default function App() {
     setBoard(newBoard);
     setScore(0);
     setMatchId(crypto.randomUUID());
+    setRotationsUsed(0);
+    setRotationNotice('');
     bonusRef.current = initialBonus();
     setBonus(bonusRef.current);
     setCornLines(0);
@@ -819,6 +848,8 @@ export default function App() {
         />
       </section>
 
+      {rotationNotice && <button onClick={()=>setRotationNotice('')} className="z-30 mx-auto max-w-[95vw] rounded-lg bg-amber-900 border border-yellow-500 px-3 py-1 text-xs font-bold text-yellow-100">{rotationNotice} ✕</button>}
+      <div className="text-center text-[11px] font-bold text-amber-200">🔄 Rotações: {rotationsUsed}/3 por partida {rotationsUsed>=3?'• Limite atingido':''}</div>
       {/* Bottom Tray with 3 Pieces */}
       <section aria-label="Bandeja de Peças" className="w-full pb-1 z-10 shrink-0">
         <div className="w-full max-w-[400px] mx-auto text-center mb-0.5">
@@ -832,6 +863,9 @@ export default function App() {
           activeDragPieceId={dragState?.piece.id || null}
           disabled={isHarvesting}
           onPointerDownPiece={handlePointerDownPiece}
+          onRotatePiece={handleRotatePiece}
+          rotationCost={rotationsUsed<3?rotationPrices[rotationsUsed]:undefined}
+          rotationCurrency={rotationsUsed===0?'🌾':'🪙'}
         />
       </section>
 
