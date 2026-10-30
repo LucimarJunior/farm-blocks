@@ -10,7 +10,7 @@ interface PieceTrayProps {
   disabled?: boolean;
   rotationCost?: number;
   rotationCurrency?: string;
-  onRotatePiece?: (id:string)=>void;
+  onRotatePiece?: (id:string,direction:'left'|'right')=>void;
   onPointerDownPiece: (e: React.PointerEvent, piece: Piece, originRect: DOMRect) => void;
 }
 
@@ -79,13 +79,19 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
             }}
           >
             <PieceRender shape={piece.shape} crop={piece.crop} cellSize={trayCellSize} />
-            {onRotatePiece && rotationCost !== undefined && <button type="button"
-              aria-label={`Girar peça por ${rotationCost} ${rotationCurrency}`}
-              title={`Girar 90° • ${rotationCost} ${rotationCurrency}`}
-              onPointerDown={e=>e.stopPropagation()}
-              onClick={e=>{e.stopPropagation();onRotatePiece(piece.id);}}
-              disabled={disabled || isDragging}
-              className="absolute -top-2 -right-1 z-20 rounded-full bg-yellow-400 text-amber-950 border-2 border-amber-950 px-2 py-1 text-[10px] font-black shadow-lg disabled:opacity-40">↻ {rotationCost}{rotationCurrency}</button>}
+            {onRotatePiece && rotationCost !== undefined && <div className="absolute -top-3 left-0 right-0 z-20 flex justify-center gap-1 pointer-events-none">
+              <button type="button" aria-label={`Girar peça 90° para esquerda por ${rotationCost} ${rotationCurrency}`}
+                title={`Girar à esquerda • ${rotationCost} ${rotationCurrency}`}
+                onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();onRotatePiece(piece.id,'left');}}
+                disabled={disabled || isDragging}
+                className="pointer-events-auto rounded-full bg-yellow-400 text-amber-950 border-2 border-amber-950 px-2 py-1 text-xs font-black shadow-lg disabled:opacity-40">↶</button>
+              <span className="self-center rounded bg-amber-950/90 px-1 text-[10px] font-black text-yellow-200">{rotationCost}{rotationCurrency}</span>
+              <button type="button" aria-label={`Girar peça 90° para direita por ${rotationCost} ${rotationCurrency}`}
+                title={`Girar à direita • ${rotationCost} ${rotationCurrency}`}
+                onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();onRotatePiece(piece.id,'right');}}
+                disabled={disabled || isDragging}
+                className="pointer-events-auto rounded-full bg-yellow-400 text-amber-950 border-2 border-amber-950 px-2 py-1 text-xs font-black shadow-lg disabled:opacity-40">↷</button>
+            </div>}
           </div>
         );
       })}
