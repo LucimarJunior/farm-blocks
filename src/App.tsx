@@ -133,12 +133,14 @@ export default function App() {
   });
   const [rotationNotice,setRotationNotice]=useState('');
   const rotationPrices=[25,30,50] as const;
-  const handleRotatePiece=(id:string)=>{
+  const handleRotatePiece=(id:string,direction:'left'|'right')=>{
     if (phase!=='READY'||isHarvesting||showGameOver||rotationsUsed>=3) return;
     const piece=trayPieces.find(p=>p.id===id&&!p.used);
     if (!piece) return;
     const shape=piece.shape;
-    const rotated=shape[0].map((_,c)=>shape.map(row=>row[c]).reverse());
+    const rotated=direction==='right'
+      ? shape[0].map((_,c)=>shape.map(row=>row[c]).reverse())
+      : shape[0].map((_,c)=>shape.map(row=>row[shape[0].length-1-c]));
     if(JSON.stringify(rotated)===JSON.stringify(shape)) { setRotationNotice('Esta peça não muda ao girar.'); return; }
     const cost=rotationPrices[rotationsUsed];
     if(rotationsUsed===0) {
@@ -149,7 +151,7 @@ export default function App() {
     }
     setTrayPieces(prev=>prev.map(p=>p.id===id?{...p,shape:rotated}:p));
     setRotationsUsed(n=>n+1);
-    setRotationNotice('Peça girada 90°!');
+    setRotationNotice(direction==='left'?'Peça girada 90° à esquerda!':'Peça girada 90° à direita!');
   };
 
   const [matchId, setMatchId] = useState<string>(() => {
