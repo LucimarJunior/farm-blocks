@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { saveFinishedMatch } from '../utils/worldRanking';
+import { queueFinishedMatch, flushFinishedMatches, pendingFinishedMatchesCount } from '../utils/worldRanking';
 import { CropIcon } from './Crops';
 import { Crown, Play, RotateCcw, X, Sparkles, Award } from 'lucide-react';
 
@@ -168,19 +168,33 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   const [name, setName] = useState(() => localStorage.getItem('farm_blocks_player_name') || '');
   const [status, setStatus] = useState('');
   const [saving, setSaving] = useState(false);
-  useEffect(() => { if (isOpen) setStatus(''); }, [isOpen]);
-  useEffect(() => { if (isOpen) onFinished(matchId, score); }, [isOpen, matchId]);
-  const handleSave = async () => {
-    if (saving) return;
+  const register = async (playerName:string) => {
+    const normalized=playerName.trim();
+    if (!normalized) { setStatus('Informe seu apelido uma vez para registrar automaticamente.'); return; }
+    localStorage.setItem('farm_blocks_player_name',normalized);
+    queueFinishedMatch(normalized,score,matchId);
     setSaving(true);
-    setStatus('');
     try {
-      await saveFinishedMatch(name, score, matchId);
-      localStorage.setItem('farm_blocks_player_name', name.trim());
-      setStatus('Partida registrada! Pontos somados nos rankings semanal e mensal; recorde mundial atualizado se for maior.');
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Falha ao salvar o recorde.');
+      await flushFinishedMatches();
+      setStatus(pendingFinishedMatchesCount()===0?'✓ Pontuação registrada automaticamente nos rankings.':'Sem conexão: pontuação guardada para envio automático.');
     } finally { setSaving(false); }
+  };
+  useEffect(() => {
+    if (!isOpen) return;
+    onFinished(matchId,score);
+    setStatus('');
+    const playerName=localStorage.getItem('farm_blocks_player_name')?.trim() || '';
+    if (playerName) { void register(playerName); }
+    else { setStatus('Informe seu apelido uma vez para ativar o registro automático.'); }
+  }, [isOpen,matchId]);
+  const handlePlayAgain = () => {
+    const playerName=name.trim() || localStorage.getItem('farm_blocks_player_name')?.trim() || '';
+    if(playerName) {
+      localStorage.setItem('farm_blocks_player_name',playerName);
+      queueFinishedMatch(playerName,score,matchId);
+      void flushFinishedMatches();
+    }
+    onPlayAgain();
   };
   if (!isOpen) return null;
 
@@ -252,19 +266,19 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
         </div>
 
         <div className="w-full mb-4 text-left">
-          <label htmlFor="world-player-name" className="block text-xs font-bold text-amber-200 mb-2">Seu apelido nos rankings</label>
-          <input id="world-player-name" maxLength={20} value={name} onChange={(e) => setName(e.target.value)}
-            placeholder="Digite seu apelido" className="w-full rounded-xl bg-white text-amber-950 px-3 py-3" />
-          <button type="button" disabled={saving || !name.trim()} onClick={handleSave}
+          {!name.trim() && <label htmlFor="world-player-name" className="block text-xs font-bold text-amber-200 mb-2">Seu apelido (necessário somente uma vez)</label>}
+          {!name.trim() && <input id="world-player-name" maxLength={20} value={name} onChange={(e) => setName(e.target.value)}
+            placeholder="Digite seu apelido" className="w-full rounded-xl bg-white text-amber-950 px-3 py-3" />}
+          {!name.trim() && <button type="button" disabled={saving || !name.trim()} onClick={()=>void register(name)}
             className="w-full mt-2 py-3 rounded-xl bg-yellow-500 text-amber-950 font-black disabled:opacity-50">
-            {saving ? 'SALVANDO...' : '🏆 REGISTRAR PARTIDA NOS RANKINGS'}
-          </button>
+            Salvar apelido e registrar partida
+          </button>}
           {status && <p role="status" className="text-xs text-amber-200 mt-2 text-center">{status}</p>}
         </div>
 
         {/* Play Again Button */}
         <button
-          onClick={onPlayAgain}
+          onClick={handlePlayAgain}
           className="w-full py-4 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white font-black text-lg rounded-2xl shadow-xl flex items-center justify-center gap-2 active:scale-98 transition-transform"
         >
           <RotateCcw className="w-5 h-5" />
