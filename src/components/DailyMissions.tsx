@@ -38,6 +38,14 @@ const missionSets: Mission[][] = [
 ];
 const missionsFor = (date: string): Mission[] => missionSets[((dayIndex(date) % missionSets.length) + missionSets.length) % missionSets.length];
 const empty = (date: string, coins = 0): Daily => ({ date, lines: 0, supers: 0, bestScore: 0, claimed: [false, false, false], coins });
+export function spendMissionCoins(amount:number):boolean {
+  const current=load();
+  if (!Number.isSafeInteger(amount) || amount<0 || current.coins<amount) return false;
+  localStorage.setItem(KEY,JSON.stringify({...current,coins:current.coins-amount}));
+  window.dispatchEvent(new Event('farm-blocks-missions-changed'));
+  return true;
+}
+export function getMissionCoins():number { return load().coins; }
 function load(): Daily {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY) || 'null') as Daily | null;
@@ -48,6 +56,11 @@ function load(): Daily {
 export function DailyMissions({ score, stats }: { score: number; stats: GameStats }) {
   const [open, setOpen] = useState(false);
   const [daily, setDaily] = useState<Daily>(load);
+  useEffect(() => {
+    const sync=()=>setDaily(load());
+    window.addEventListener('farm-blocks-missions-changed',sync);
+    return ()=>window.removeEventListener('farm-blocks-missions-changed',sync);
+  }, []);
   const previous = useRef({ lines: stats.linesCleared, supers: stats.superHarvests });
   const missions = missionsFor(daily.date);
 
