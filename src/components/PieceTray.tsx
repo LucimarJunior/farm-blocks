@@ -60,7 +60,7 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
           <div
             key={piece.id}
             data-piece-id={piece.id}
-            className={`relative flex-1 h-full rounded-2xl bg-amber-950/65 backdrop-blur-sm border-2 border-amber-800/60 shadow-lg p-1.5 flex items-center justify-center select-none transition-all duration-150 touch-none ${
+            className={`relative flex-1 h-full rounded-2xl bg-amber-950/65 ${selectedPieceId===piece.id?'ring-2 ring-yellow-400 border-yellow-400':''} backdrop-blur-sm border-2 border-amber-800/60 shadow-lg p-1.5 flex items-center justify-center select-none transition-all duration-150 touch-none ${
               disabled
                 ? 'opacity-50 cursor-not-allowed'
                 : isDragging
@@ -73,19 +73,12 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
               if (disabled) return;
               const target = e.currentTarget;
               const rect = target.getBoundingClientRect();
+              onSelectPiece?.(piece.id);
               onPointerDownPiece(e, piece, rect);
             }}
           >
             <PieceRender shape={piece.shape} crop={piece.crop} cellSize={trayCellSize} />
-            {onSelectPiece && <button type="button"
-              aria-label={`Selecionar peça ${index+1} para girar`}
-              aria-pressed={selectedPieceId===piece.id}
-              onPointerDown={e=>e.stopPropagation()}
-              onClick={e=>{e.stopPropagation();onSelectPiece(piece.id);}}
-              disabled={disabled || isDragging}
-              className={`absolute bottom-0 left-1/2 -translate-x-1/2 z-20 rounded-t-lg px-2 py-0.5 text-[10px] font-bold border border-amber-500/70 shadow-sm ${selectedPieceId===piece.id?'bg-yellow-400 text-amber-950':'bg-amber-950/95 text-yellow-200'}`}>
-              {selectedPieceId===piece.id?'✓ Selecionada':'↻ Selecionar'}
-            </button>}
+
           </div>
         );
       })}
