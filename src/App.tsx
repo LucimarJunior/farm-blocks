@@ -250,13 +250,8 @@ export default function App() {
     }
   }
 
-  // Defensive check: If all pieces in tray are used, immediately generate 3 new pieces
-  useEffect(() => {
-    const remaining = trayPieces.filter((p) => !p.used);
-    if (remaining.length === 0) {
-      setTrayPieces(generateTrayPieces(board));
-    }
-  }, [trayPieces, board]);
+  // The next tray is generated only by the placement/harvest completion handlers.
+  // Do not regenerate here: during harvest this caused two consecutive trays.
 
   // Save game state
   useEffect(() => {
