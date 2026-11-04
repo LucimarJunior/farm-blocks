@@ -32,7 +32,12 @@ export const HarvestParticles: React.FC<HarvestParticlesProps> = ({ triggers }) 
 
   // Spawn particles on new triggers
   useEffect(() => {
-    if (!canvasRef.current || triggers.length === 0) return;
+    if (triggers.length === 0) {
+      processedTriggersRef.current.clear();
+      particlesRef.current = [];
+      return;
+    }
+    if (!canvasRef.current) return;
     const canvas = canvasRef.current;
     const width = canvas.width;
     const height = canvas.height;
@@ -75,10 +80,6 @@ export const HarvestParticles: React.FC<HarvestParticlesProps> = ({ triggers }) 
       }
     });
 
-    // Clean up processed ids if triggers array resets
-    if (triggers.length === 0) {
-      processedTriggersRef.current.clear();
-    }
   }, [triggers]);
 
   // Animation Loop
