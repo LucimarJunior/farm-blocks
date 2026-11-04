@@ -25,6 +25,7 @@ import { sound } from './audio';
 import { FarmBackground } from './components/FarmBackground';
 import { HUD } from './components/HUD';
 import { Board } from './components/Board';
+import { HarvesterDirection } from './components/HarvesterAnimation';
 import { PieceTray, PieceRender } from './components/PieceTray';
 import { ParticleTrigger } from './components/HarvestParticles';
 import { HarvestBanner, BannerData } from './components/HarvestBanner';
@@ -212,6 +213,8 @@ export default function App() {
   const [isHarvesting, setIsHarvesting] = useState<boolean>(false);
   const [clearingCells, setClearingCells] = useState<Set<string>>(new Set());
   const [activeHarvesters, setActiveHarvesters] = useState<HarvestLineResult[]>([]);
+  const [activeHarvesterDirection,setActiveHarvesterDirection]=useState<HarvesterDirection>('right');
+  const [harvesterTransit,setHarvesterTransit]=useState<{from:{line:HarvestLineResult;direction:HarvesterDirection};to:{line:HarvestLineResult;direction:HarvesterDirection};duration:number}|null>(null);
   const [particleTriggers, setParticleTriggers] = useState<ParticleTrigger[]>([]);
   const [scorePopups, setScorePopups] = useState<ScorePopup[]>([]);
   const [currentBanner, setCurrentBanner] = useState<BannerData | null>(null);
@@ -354,6 +357,7 @@ export default function App() {
     setIsHarvesting(false);
     setClearingCells(new Set());
     setActiveHarvesters([]);
+    setHarvesterTransit(null);
     setParticleTriggers([]);
     setCurrentBanner(null);
     setShowGameOver(false);
@@ -646,12 +650,12 @@ export default function App() {
           maxCombo: Math.max(prev.maxCombo, harvest.comboCount),
         }));
 
-        // Plan passes in sequence: all completed rows first, then all completed columns
-        const plannedPasses: Array<{ line: HarvestLineResult; direction: 'right' | 'up' }> = [];
-        const completedRows = harvest.lines.filter((l) => l.orientation === 'row');
-        const completedCols = harvest.lines.filter((l) => l.orientation === 'col');
-        completedRows.forEach((rowLine) => plannedPasses.push({ line: rowLine, direction: 'right' }));
-        completedCols.forEach((colLine) => plannedPasses.push({ line: colLine, direction: 'up' }));
+        // Serpentine harvesting: alternate directions on parallel rows/columns.
+        const plannedPasses: Array<{line:HarvestLineResult;direction:HarvesterDirection}> = [];
+        const completedRows=harvest.lines.filter(l=>l.orientation==='row').sort((a,b)=>a.index-b.index);
+        const completedCols=harvest.lines.filter(l=>l.orientation==='col').sort((a,b)=>a.index-b.index);
+        completedRows.forEach((line,i)=>plannedPasses.push({line,direction:i%2===0?'right':'left'}));
+        completedCols.forEach((line,i)=>plannedPasses.push({line,direction:i%2===0?'up':'down'}));
 
         // Clear harvested cells tracker for this turn
         harvestedCellsRef.current.clear();
@@ -690,9 +694,11 @@ export default function App() {
             }
 
             const currentPass = plannedPasses[passIndex];
+            setHarvesterTransit(null);
+            setActiveHarvesterDirection(currentPass.direction);
             setActiveHarvesters([currentPass.line]);
             const passStartTime = performance.now();
-            const isRow = currentPass.direction === 'right';
+            const isRow = currentPass.line.orientation === 'row';
             const lineIdx = currentPass.line.index;
 
             // Frame-based calculation (Problem 3: Calculate position every frame via RAF)
@@ -709,8 +715,8 @@ export default function App() {
                 const cutProgress = ((step + 0.5) * 12.5) / 123.77;
 
                 if (progress >= cutProgress) {
-                  const r = isRow ? lineIdx : 7 - step;
-                  const c = isRow ? step : lineIdx;
+                  const r = isRow ? lineIdx : (currentPass.direction==='up'?7-step:step);
+                  const c = isRow ? (currentPass.direction==='left'?7-step:step) : lineIdx;
                   const key = `${r},${c}`;
 
                   // Do not harvest intersection cells twice (Problem 3: simultaneous harvest rule)
@@ -749,10 +755,12 @@ export default function App() {
                 // Pass complete!
                 setActiveHarvesters([]);
                 if (passIndex + 1 < plannedPasses.length) {
-                  // Execute next pass in sequence
+                  // Keep the same machine visible while turning at the headland.
+                  const turnDuration=850;
+                  setHarvesterTransit({from:currentPass,to:plannedPasses[passIndex+1],duration:turnDuration});
                   const nextPassTimer = window.setTimeout(() => {
                     executePass(passIndex + 1);
-                  }, 60);
+                  }, turnDuration);
                   harvestTimeoutsRef.current.push(nextPassTimer);
                 } else {
                   // All passes complete!
@@ -851,6 +859,8 @@ export default function App() {
           hoverPreview={hoverPreview}
           clearingCells={clearingCells}
           activeHarvesters={activeHarvesters}
+          activeHarvesterDirection={activeHarvesterDirection}
+          harvesterTransit={harvesterTransit}
           harvesterId={garage.equipped}
           harvesterDuration={HARVESTERS.find(m=>m.id===garage.equipped)?.duration || 3500}
           particleTriggers={particleTriggers}
