@@ -214,6 +214,7 @@ export default function App() {
   const [clearingCells, setClearingCells] = useState<Set<string>>(new Set());
   const [activeHarvesters, setActiveHarvesters] = useState<HarvestLineResult[]>([]);
   const [activeHarvesterDirection,setActiveHarvesterDirection]=useState<HarvesterDirection>('right');
+  const [harvestProgress,setHarvestProgress]=useState(0);
   const [harvesterTransit,setHarvesterTransit]=useState<{from:{line:HarvestLineResult;direction:HarvesterDirection};to:{line:HarvestLineResult;direction:HarvesterDirection};duration:number}|null>(null);
   const [particleTriggers, setParticleTriggers] = useState<ParticleTrigger[]>([]);
   const [scorePopups, setScorePopups] = useState<ScorePopup[]>([]);
@@ -696,6 +697,7 @@ export default function App() {
             const currentPass = plannedPasses[passIndex];
             setHarvesterTransit(null);
             setActiveHarvesterDirection(currentPass.direction);
+            setHarvestProgress(0);
             setActiveHarvesters([currentPass.line]);
             const passStartTime = performance.now();
             const isRow = currentPass.line.orientation === 'row';
@@ -705,6 +707,7 @@ export default function App() {
             const frame = (now: number) => {
               const elapsed = now - passStartTime;
               const progress = Math.min(1.0, elapsed / (HARVESTERS.find(m=>m.id===garage.equipped)?.duration || 3500));
+              setHarvestProgress(progress);
 
               let boardChanged = false;
               const newTriggers: ParticleTrigger[] = [];
@@ -713,7 +716,7 @@ export default function App() {
               // Delay crop removal until the cutter visually reaches each cell.
               // Keep the final cell inside the pass, before the machine exits the board.
               for (let step = 0; step < 8; step++) {
-                const cutProgress = 0.22 + ((step + 0.5) / 8) * 0.76;
+                const cutProgress = (step + 0.5) / 8;
 
                 if (progress >= cutProgress) {
                   const r = isRow ? lineIdx : (currentPass.direction==='up'?7-step:step);
@@ -863,6 +866,7 @@ export default function App() {
           clearingCells={clearingCells}
           activeHarvesters={activeHarvesters}
           activeHarvesterDirection={activeHarvesterDirection}
+          harvestProgress={harvestProgress}
           harvesterTransit={harvesterTransit}
           harvesterId={garage.equipped}
           harvesterDuration={HARVESTERS.find(m=>m.id===garage.equipped)?.duration || 3500}
