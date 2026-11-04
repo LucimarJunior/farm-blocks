@@ -12,6 +12,7 @@ interface BoardProps {
   clearingCells: Set<string>;
   activeHarvesters: HarvestLineResult[];
   activeHarvesterDirection?: HarvesterDirection;
+  harvestProgress?: number;
   harvesterTransit?: {from:{line:HarvestLineResult;direction:HarvesterDirection};to:{line:HarvestLineResult;direction:HarvesterDirection};duration:number}|null;
   harvesterId: import('./Garage').HarvesterId;
   harvesterDuration: number;
@@ -26,6 +27,7 @@ export const Board: React.FC<BoardProps> = ({
   clearingCells,
   activeHarvesters,
   activeHarvesterDirection,
+  harvestProgress,
   harvesterTransit,
   harvesterId,
   harvesterDuration,
@@ -201,6 +203,7 @@ export const Board: React.FC<BoardProps> = ({
             key={`${harvester.orientation}_${harvester.index}_${idx}`}
             line={harvester}
             direction={activeHarvesterDirection}
+            progress={harvestProgress}
             harvesterId={harvesterId}
             duration={harvesterDuration}
             boardRect={{ width: boardWidth, height: boardHeight }}
