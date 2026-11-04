@@ -93,7 +93,7 @@ export const HarvesterTransit:React.FC<{from:Pass;to:Pass;harvesterId:HarvesterI
  const angle=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI+90;
  return <div className="absolute inset-0 pointer-events-none z-40 overflow-visible">
   <div className="absolute drop-shadow-[0_4px_8px_rgba(0,0,0,0.65)]" style={{
-   width:'20%',height:'20%',left:`calc(${x}% - 10%)`,top:`calc(${y}% - 10%)`,
+   width:'32.2%',height:'32.2%',left:`calc(${x}% - 16.1%)`,top:`calc(${y}% - 16.1%)`,
    transform:`rotate(${angle}deg)`
   }}><HarvesterImage id={harvesterId} view="superior" className="block w-full h-full object-contain"/></div>
  </div>;
