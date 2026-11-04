@@ -15,13 +15,13 @@ interface HarvesterProps {
 /** One shared frame progress drives the harvester position and the crop cutter. */
 export const HarvesterAnimation:React.FC<HarvesterProps> = ({line,direction,harvesterId,progress=0}) => {
  const travel:HarvesterDirection=direction||(line.orientation==='row'?'right':'up');
- const size=32.2;
+ const size=20;
  const lane=(line.index+.5)*12.5;
  // The cutter is near the front of the sprite; align it with the crop position.
- const cutterAhead=8;
+ const cutterAhead=0;
  const travelSign=travel==='right'||travel==='down'?1:-1;
  // Enter and leave the field completely; the cutter crosses tiles only mid-pass.
- const cutterPosition=travelSign===1?(-30+160*progress):(130-160*progress);
+ const cutterPosition=travelSign===1?(10+80*progress):(90-80*progress);
  const machineCenter=cutterPosition-travelSign*cutterAhead;
  const x=line.orientation==='row'?machineCenter:lane;
  const y=line.orientation==='row'?lane:machineCenter;
