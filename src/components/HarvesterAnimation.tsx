@@ -21,7 +21,9 @@ export const HarvesterAnimation:React.FC<HarvesterProps> = ({line,direction,harv
  const cutterAhead=0;
  const travelSign=travel==='right'||travel==='down'?1:-1;
  // Enter and leave the field completely; the cutter crosses tiles only mid-pass.
- const cutterPosition=travelSign===1?(6.25+87.5*progress):(93.75-87.5*progress);
+ // Cut all eight cells by 85% of the pass, then keep moving to clear the cutter from the board.
+ const position=progress<=0.85?6.25+87.5*(progress/0.85):93.75+24*((progress-0.85)/0.15);
+ const cutterPosition=travelSign===1?position:100-position;
  const machineCenter=cutterPosition-travelSign*cutterAhead;
  const x=line.orientation==='row'?machineCenter:lane;
  const y=line.orientation==='row'?lane:machineCenter;
