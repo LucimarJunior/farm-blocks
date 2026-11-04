@@ -5,13 +5,13 @@ import { HarvestLineResult } from '../types';
 
 type Pass = { line: HarvestLineResult; direction: HarvesterDirection };
 type Point = [number, number];
-const OUT=10, FAR=90, SPAN=FAR-OUT, PERIMETER=SPAN*4;
+const OUT=6.25, FAR=93.75, SPAN=FAR-OUT, PERIMETER=SPAN*4;
 const directionVector:Record<HarvesterDirection,Point>={right:[1,0],left:[-1,0],up:[0,-1],down:[0,1]};
 const center=(p:Pass,end:boolean):Point=>{
  const lane=(p.line.index+.5)*12.5;
  // Match HarvesterAnimation's exact sprite center at progress 0 and 1.
  // The cutter is 8% ahead of the machine center in its travel direction.
- const cutter=end?(p.direction==='right'||p.direction==='down'?90:10):(p.direction==='right'||p.direction==='down'?10:90);
+ const cutter=end?(p.direction==='right'||p.direction==='down'?93.75:6.25):(p.direction==='right'||p.direction==='down'?6.25:93.75);
  const sign=p.direction==='right'||p.direction==='down'?1:-1;
  const machineCenter=cutter;
  if(p.line.orientation==='row')return [machineCenter,lane];
