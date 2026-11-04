@@ -1,7 +1,8 @@
 import React from 'react';
 import { Board as BoardType, HarvestLevel, HarvestLineResult, HoverPreviewData, ScorePopup } from '../types';
 import { CropIcon } from './Crops';
-import { HarvesterAnimation } from './HarvesterAnimation';
+import { HarvesterAnimation, HarvesterDirection } from './HarvesterAnimation';
+import { HarvesterTransit } from './HarvesterTransit';
 import { HarvestParticles, ParticleTrigger } from './HarvestParticles';
 
 interface BoardProps {
@@ -10,6 +11,8 @@ interface BoardProps {
   hoverPreview: HoverPreviewData | null;
   clearingCells: Set<string>;
   activeHarvesters: HarvestLineResult[];
+  activeHarvesterDirection?: HarvesterDirection;
+  harvesterTransit?: {from:{line:HarvestLineResult;direction:HarvesterDirection};to:{line:HarvestLineResult;direction:HarvesterDirection};duration:number}|null;
   harvesterId: import('./Garage').HarvesterId;
   harvesterDuration: number;
   particleTriggers: ParticleTrigger[];
@@ -22,6 +25,8 @@ export const Board: React.FC<BoardProps> = ({
   hoverPreview,
   clearingCells,
   activeHarvesters,
+  activeHarvesterDirection,
+  harvesterTransit,
   harvesterId,
   harvesterDuration,
   particleTriggers,
@@ -195,11 +200,13 @@ export const Board: React.FC<BoardProps> = ({
           <HarvesterAnimation
             key={`${harvester.orientation}_${harvester.index}_${idx}`}
             line={harvester}
+            direction={activeHarvesterDirection}
             harvesterId={harvesterId}
             duration={harvesterDuration}
             boardRect={{ width: boardWidth, height: boardHeight }}
           />
         ))}
+        {harvesterTransit && <HarvesterTransit key={`${harvesterTransit.from.line.orientation}_${harvesterTransit.from.line.index}_${harvesterTransit.to.line.orientation}_${harvesterTransit.to.line.index}`} {...harvesterTransit} harvesterId={harvesterId}/>}
       </div>
     </div>
   );
