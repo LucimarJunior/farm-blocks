@@ -713,7 +713,7 @@ export default function App() {
               // Delay crop removal until the cutter visually reaches each cell.
               // Keep the final cell inside the pass, before the machine exits the board.
               for (let step = 0; step < 8; step++) {
-                const cutProgress = 0.12 + ((step + 0.5) / 8) * 0.82;
+                const cutProgress = 0.22 + ((step + 0.5) / 8) * 0.76;
 
                 if (progress >= cutProgress) {
                   const r = isRow ? lineIdx : (currentPass.direction==='up'?7-step:step);
