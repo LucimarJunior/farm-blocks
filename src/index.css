@@ -160,11 +160,9 @@
 /* Harvest machine remains fully visible and travels strictly between board edges. */
 @keyframes farm-harvester-horizontal {
   from { left: var(--harvester-start, -9.85%); }
-  94% { opacity: 1; }
-  to { left: var(--harvester-end, 77.65%); opacity: 0; }
+  to { left: var(--harvester-end, 77.65%); }
 }
 @keyframes farm-harvester-vertical {
   from { top: var(--harvester-start, -9.85%); }
-  94% { opacity: 1; }
-  to { top: var(--harvester-end, 77.65%); opacity: 0; }
+  to { top: var(--harvester-end, 77.65%); }
 }
