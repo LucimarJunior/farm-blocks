@@ -716,7 +716,8 @@ export default function App() {
               // Delay crop removal until the cutter visually reaches each cell.
               // Keep the final cell inside the pass, before the machine exits the board.
               for (let step = 0; step < 8; step++) {
-                const cutProgress = (step + 0.5) / 8;
+                // Same cutter coordinate used by HarvesterAnimation (-30% to 130%).
+                const cutProgress = (30 + (step + 0.5) * 12.5) / 160;
 
                 if (progress >= cutProgress) {
                   const r = isRow ? lineIdx : (currentPass.direction==='up'?7-step:step);
