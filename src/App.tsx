@@ -710,9 +710,10 @@ export default function App() {
               const newTriggers: ParticleTrigger[] = [];
 
               // Check each of the 8 cells in this line
-              // The cutter platform reaches cell center at: progress >= ((step + 0.5) * 12.5) / 123.77
+              // Delay crop removal until the cutter visually reaches each cell.
+              // Keep the final cell inside the pass, before the machine exits the board.
               for (let step = 0; step < 8; step++) {
-                const cutProgress = ((step + 0.5) * 12.5) / 123.77;
+                const cutProgress = 0.12 + ((step + 0.5) / 8) * 0.82;
 
                 if (progress >= cutProgress) {
                   const r = isRow ? lineIdx : (currentPass.direction==='up'?7-step:step);
