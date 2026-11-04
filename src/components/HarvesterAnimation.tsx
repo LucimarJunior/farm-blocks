@@ -15,7 +15,7 @@ interface HarvesterProps {
 /** One shared frame progress drives the harvester position and the crop cutter. */
 export const HarvesterAnimation:React.FC<HarvesterProps> = ({line,direction,harvesterId,progress=0}) => {
  const travel:HarvesterDirection=direction||(line.orientation==='row'?'right':'up');
- const size=20;
+ const size=32.2;
  const lane=(line.index+.5)*12.5;
  // The cutter is near the front of the sprite; align it with the crop position.
  const cutterAhead=0;
