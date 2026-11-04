@@ -11,7 +11,7 @@ const center=(p:Pass,end:boolean):Point=>{
  const lane=(p.line.index+.5)*12.5;
  // Match HarvesterAnimation's exact sprite center at progress 0 and 1.
  // The cutter is 8% ahead of the machine center in its travel direction.
- const cutter=end?(p.direction==='right'||p.direction==='down'?93.75:6.25):(p.direction==='right'||p.direction==='down'?6.25:93.75);
+ const cutter=end?(p.direction==='right'||p.direction==='down'?117.75:-17.75):(p.direction==='right'||p.direction==='down'?6.25:93.75);
  const sign=p.direction==='right'||p.direction==='down'?1:-1;
  const machineCenter=cutter;
  if(p.line.orientation==='row')return [machineCenter,lane];
