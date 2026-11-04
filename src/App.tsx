@@ -756,8 +756,10 @@ export default function App() {
                 setActiveHarvesters([]);
                 if (passIndex + 1 < plannedPasses.length) {
                   // Keep the same machine visible while turning at the headland.
-                  const turnDuration=850;
-                  setHarvesterTransit({from:currentPass,to:plannedPasses[passIndex+1],duration:turnDuration});
+                  const nextPass=plannedPasses[passIndex+1];
+                  // Longer mixed-orientation transfers need more time to follow the outer perimeter.
+                  const turnDuration=currentPass.line.orientation===nextPass.line.orientation?1150:1900;
+                  setHarvesterTransit({from:currentPass,to:nextPass,duration:turnDuration});
                   const nextPassTimer = window.setTimeout(() => {
                     executePass(passIndex + 1);
                   }, turnDuration);
