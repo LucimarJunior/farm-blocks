@@ -717,7 +717,7 @@ export default function App() {
               // Keep the final cell inside the pass, before the machine exits the board.
               for (let step = 0; step < 8; step++) {
                 // Same cutter coordinate used by HarvesterAnimation (-30% to 130%).
-                const cutProgress = (30 + (step + 0.5) * 12.5) / 160;
+                const cutProgress = Math.max(0, Math.min(1, ((step + 0.5) * 12.5 - 10) / 80));
 
                 if (progress >= cutProgress) {
                   const r = isRow ? lineIdx : (currentPass.direction==='up'?7-step:step);
