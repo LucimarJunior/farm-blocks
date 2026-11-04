@@ -20,7 +20,8 @@ export const HarvesterAnimation:React.FC<HarvesterProps> = ({line,direction,harv
  // The cutter is near the front of the sprite; align it with the crop position.
  const cutterAhead=8;
  const travelSign=travel==='right'||travel==='down'?1:-1;
- const cutterPosition=travelSign===1?progress*100:100-progress*100;
+ // Enter and leave the field completely; the cutter crosses tiles only mid-pass.
+ const cutterPosition=travelSign===1?(-30+160*progress):(130-160*progress);
  const machineCenter=cutterPosition-travelSign*cutterAhead;
  const x=line.orientation==='row'?machineCenter:lane;
  const y=line.orientation==='row'?lane:machineCenter;
