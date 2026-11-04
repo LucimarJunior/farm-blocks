@@ -37,6 +37,24 @@ const perimeterPoint=(distance:number):Point=>{
 const distance=(a:Point,b:Point)=>Math.hypot(b[0]-a[0],b[1]-a[1]);
 function buildPath(from:Pass,to:Pass):Point[]{
  const start=center(from,true),finish=center(to,false);
+ // Parallel passes: a short, continuous U-turn with correct departure/arrival tangents.
+ // Keep the same combine size; only change the transit trajectory.
+ if(from.line.orientation===to.line.orientation && from.direction!==to.direction){
+  const row=from.line.orientation==='row';
+  const side=row?(from.direction==='right'?1:-1):(from.direction==='down'?1:-1);
+  const outer=row?Math.max(122,Math.abs(start[0]-50)+72)*(side):Math.max(122,Math.abs(start[1]-50)+72)*(side);
+  const p1:Point=row?[outer,start[1]]:[start[0],outer];
+  const p2:Point=row?[outer,finish[1]]:[finish[0],outer];
+  const points:Point[]=[];
+  for(let i=0;i<=40;i++){
+   const t=i/40,q=1-t;
+   points.push([
+    q*q*q*start[0]+3*q*q*t*p1[0]+3*q*t*t*p2[0]+t*t*t*finish[0],
+    q*q*q*start[1]+3*q*q*t*p1[1]+3*q*t*t*p2[1]+t*t*t*finish[1]
+   ]);
+  }
+  return points;
+ }
  const exit=boundary(start,directionVector[from.direction]);
  const entering=directionVector[to.direction];
  const entry=boundary(finish,[-entering[0],-entering[1]]);
