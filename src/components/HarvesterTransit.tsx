@@ -9,9 +9,13 @@ const OUT=-22, FAR=122, SPAN=FAR-OUT, PERIMETER=SPAN*4;
 const directionVector:Record<HarvesterDirection,Point>={right:[1,0],left:[-1,0],up:[0,-1],down:[0,1]};
 const center=(p:Pass,end:boolean):Point=>{
  const lane=(p.line.index+.5)*12.5;
- const start=8.75,finish=91.25;
- if(p.line.orientation==='row')return [p.direction==='right'?(end?finish:start):(end?start:finish),lane];
- return [lane,p.direction==='down'?(end?finish:start):(end?start:finish)];
+ // Match HarvesterAnimation's exact sprite center at progress 0 and 1.
+ // The cutter is 8% ahead of the machine center in its travel direction.
+ const cutter=end?(p.direction==='right'||p.direction==='down'?100:0):(p.direction==='right'||p.direction==='down'?0:100);
+ const sign=p.direction==='right'||p.direction==='down'?1:-1;
+ const machineCenter=cutter-sign*8;
+ if(p.line.orientation==='row')return [machineCenter,lane];
+ return [lane,machineCenter];
 };
 const boundary=(point:Point,vector:Point):Point=>[
  vector[0]>0?FAR:vector[0]<0?OUT:point[0],
