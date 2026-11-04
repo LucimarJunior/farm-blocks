@@ -5,13 +5,13 @@ import { HarvestLineResult } from '../types';
 
 type Pass = { line: HarvestLineResult; direction: HarvesterDirection };
 type Point = [number, number];
-const OUT=-22, FAR=122, SPAN=FAR-OUT, PERIMETER=SPAN*4;
+const OUT=-46, FAR=146, SPAN=FAR-OUT, PERIMETER=SPAN*4;
 const directionVector:Record<HarvesterDirection,Point>={right:[1,0],left:[-1,0],up:[0,-1],down:[0,1]};
 const center=(p:Pass,end:boolean):Point=>{
  const lane=(p.line.index+.5)*12.5;
  // Match HarvesterAnimation's exact sprite center at progress 0 and 1.
  // The cutter is 8% ahead of the machine center in its travel direction.
- const cutter=end?(p.direction==='right'||p.direction==='down'?100:0):(p.direction==='right'||p.direction==='down'?0:100);
+ const cutter=end?(p.direction==='right'||p.direction==='down'?130:-30):(p.direction==='right'||p.direction==='down'?-30:130);
  const sign=p.direction==='right'||p.direction==='down'?1:-1;
  const machineCenter=cutter-sign*8;
  if(p.line.orientation==='row')return [machineCenter,lane];
@@ -62,7 +62,7 @@ function buildPath(from:Pass,to:Pass):Point[]{
   const prev=points[i-1],cur=points[i],next=points[i+1];
   const before=distance(prev,cur),after=distance(cur,next);
   if(before<0.001||after<0.001)continue;
-  const radius=Math.min(9,before*.35,after*.35);
+  const radius=Math.min(18,before*.48,after*.48);
   const a:Point=[cur[0]+(prev[0]-cur[0])*radius/before,cur[1]+(prev[1]-cur[1])*radius/before];
   const b:Point=[cur[0]+(next[0]-cur[0])*radius/after,cur[1]+(next[1]-cur[1])*radius/after];
   smooth.push(a);
